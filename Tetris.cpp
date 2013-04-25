@@ -1,3 +1,4 @@
+#include <iostream>
 #include "Tetris.h"
 
 Tetris::Tetris() {
@@ -35,6 +36,20 @@ bool Tetris::OnInit() {
     return false;
   }
 
+  if ((surf_tetris = SDL_CreateRGBSurface(0, 640, 480, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff)) == NULL) {
+    return false;
+  }
+
+  // Debug since we're not spawning them throughout the game, yet
+  Tetrino *tetrino = new Tetrino();
+  if (tetrino->OnLoad(0) == false) {
+    std::cout << "Error loading tetrino!" << std::endl;
+    return false;
+  }
+  tetrino->SetLocation(310, 10);
+  tetrinos.push_back(tetrino);
+  // End debug
+
   return true;
 }
 
@@ -47,14 +62,29 @@ void Tetris::OnExit() {
 }
 
 void Tetris::OnLoop() {
+  for (int i = 0; i < tetrinos.size(); i++) {
+    if (!tetrinos[i]) continue;
+    tetrinos[i]->OnLoop();
+  }
 }
 
 void Tetris::OnRender() {
+  for (int i = 0; i < tetrinos.size(); i++) {
+    if (!tetrinos[i]) continue;
+    tetrinos[i]->OnRender(surf_display);
+  }
+
   TSurface::OnDraw(surf_display, surf_tetris, 0, 0);
   SDL_Flip(surf_display);
 }
 
 void Tetris::OnCleanup() {
+  for (int i = 0; i < tetrinos.size(); i++) {
+    if (!tetrinos[i]) continue;
+    tetrinos[i]->OnCleanup();
+    delete tetrinos[i];
+  }
+
   SDL_FreeSurface(surf_tetris);
   SDL_FreeSurface(surf_display);
   SDL_Quit();
