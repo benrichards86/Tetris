@@ -14,6 +14,8 @@ class Tetris : public TEvent {
   SDL_Surface* surf_tetris;
   std::vector<Tetrino*> tetrinos; // Tetrinos in play on the screen
 
+  int resolution_x;
+  int resolution_y;
 
  public:
   Tetris();

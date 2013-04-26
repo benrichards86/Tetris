@@ -4,6 +4,8 @@
 Tetris::Tetris() {
   surf_display = NULL;
   surf_tetris = NULL;
+  resolution_x = 800;
+  resolution_y = 600;
   running = true;
 }
 
@@ -32,22 +34,22 @@ bool Tetris::OnInit() {
     return false;
   }
 
-  if ((surf_display = SDL_SetVideoMode(640, 480, 32, SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL) {
+  if ((surf_display = SDL_SetVideoMode(resolution_x, resolution_y, 32, SDL_HWSURFACE | SDL_DOUBLEBUF)) == NULL) {
     return false;
   }
 
-  if ((surf_tetris = SDL_CreateRGBSurface(0, 640, 480, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff)) == NULL) {
+  if ((surf_tetris = SDL_CreateRGBSurface(0, resolution_x, resolution_y, 32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff)) == NULL) {
     return false;
   }
 
   // Debug since we're not spawning them throughout the game, yet
-  Tetrino *tetrino = new Tetrino();
-  if (tetrino->OnLoad(0) == false) {
-    std::cout << "Error loading tetrino!" << std::endl;
-    return false;
+  for (int i = 0; i < 6; i++) {
+    Tetrino *tetrino = new Tetrino();
+    tetrino->OnLoad(i);
+    tetrino->SetLocation(10 + 100 * i, 10);
+    tetrinos.push_back(tetrino);
   }
-  tetrino->SetLocation(310, 10);
-  tetrinos.push_back(tetrino);
+    
   // End debug
 
   return true;
