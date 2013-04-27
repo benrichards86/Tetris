@@ -13,6 +13,8 @@ int Tetris::OnExecute() {
   if (OnInit() == false)
     return -1;
 
+  SDL_WM_SetCaption("Tetris Clone", 0); 
+
   SDL_Event event;
 
   while (running) {
