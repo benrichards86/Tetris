@@ -1,7 +1,11 @@
 #ifndef TEVENT_H
 #define TEVENT_H
 
+#ifdef _WIN32
+#include "SDL.h"
+#else
 #include <SDL/SDL.h>
+#endif
 
 class TEvent {
  public:

@@ -1,9 +1,16 @@
 #ifndef TETRIS_H
 #define TETRIS_H
 
-#include <vector>
+#ifdef _WIN32
+#include <windows.h>
+#include "SDL.h"
+#else
 #include <SDL/SDL.h>
-#include "TSurface.h"
+#endif
+#include <vector>
+
+#include <gl/gl.h>
+#include <gl/glu.h>
 #include "TEvent.h"
 #include "Tetrino.h"
 
@@ -11,7 +18,6 @@ class Tetris : public TEvent {
  private:
   bool running;
   SDL_Surface* surf_display;
-  SDL_Surface* surf_tetris;
   std::vector<Tetrino*> tetrinos; // Tetrinos in play on the screen
 
   int resolution_x;
