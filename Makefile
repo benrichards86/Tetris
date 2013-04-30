@@ -9,16 +9,20 @@ endif
 
 SDL_LIBS = -lSDL -lSDLmain
 CC = g++-3
-CFLAGS = -g
+DEBUGFLAGS = -g
+RELEASEFLAGS = -O3
 LIBS = $(OPENGL_LIBS) $(PLATFORM_LIBS) $(SDL_LIBS)
 INCLUDES = $(SDL_INCLUDES)
 SOURCES = Tetris.cpp TEvent.cpp Tetrino.cpp
 HEADERS = Tetris.h TEvent.h Tetrino.h
 
-all: tetris
+all: debug
+
+debug: $(HEADERS) $(SOURCES)
+	$(CC) $(SOURCES) $(CFLAGS) $(DEBUGFLAGS) $(INCLUDES) $(LIBS) -o $@
 
 tetris: $(HEADERS) $(SOURCES)
-	$(CC) $(SOURCES) $(CFLAGS) $(INCLUDES) $(LIBS) -o $@
+	$(CC) $(SOURCES) $(CFLAGS) $(RELEASEFLAGS) $(INCLUDES) $(LIBS) -o $@
 
 .PHONY:
 run: tetris
@@ -26,7 +30,7 @@ run: tetris
 
 .PHONY:
 clean:
-	rm -f tetris.exe tetris.exe.stackdump
+	rm -f tetris.exe tetris.exe.stackdump debug.exe debug.exe.stackdump
 
 .PHONY:
 prune:
