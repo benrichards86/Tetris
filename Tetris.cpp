@@ -1,5 +1,3 @@
-#include <ctime>
-#include <cstdlib>
 #include <iostream>
 #include "Tetris.h"
 
@@ -57,17 +55,30 @@ bool Tetris::OnInit() {
   glLoadIdentity();
 
   // Debug since we're not spawning them throughout the game, yet
-  srand(time(0));
   for (int i = 0; i < 7; i++) {
     Tetrino *tetrino = new Tetrino();
     tetrino->OnLoad(i);
-    tetrino->SetLocation(10 + 100 * i, 160);
-    tetrino->SetRotation((float)rand() / (float)RAND_MAX * 360.0f);
+    tetrino->SetLocation(50 + 100 * i, 160);
     tetrinos.push_back(tetrino);
   }
   // End debug
 
   return true;
+}
+
+void Tetris::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
+}
+
+void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
+#ifdef DEBUG
+  std::cout << "Key pressed: " << mod << " + " << sym << std::endl;
+#endif
+
+  // Quit if we pressed ESC
+  if (mod == 0 && sym == 27) exit(0);
+
+  for (int i = 0; i < tetrinos.size(); i++)
+    tetrinos[i]->RotateRight();
 }
 
 void Tetris::OnEvent(SDL_Event* event) {

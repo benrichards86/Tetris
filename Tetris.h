@@ -34,6 +34,10 @@ class Tetris : public TEvent {
   void OnLoop();
   void OnRender();
   void OnCleanup();
+
+ public:
+  void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);
+  void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
 };
 
 #endif

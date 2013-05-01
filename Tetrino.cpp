@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Tetrino.h"
 
+#define CELL_SIZE 20
+
 Tetrino::Tetrino() {
   x = y = 0;
   rotation = 0;
@@ -15,8 +17,45 @@ void Tetrino::SetLocation(int x_loc, int y_loc) {
   y = y_loc;
 }
 
-void Tetrino::SetRotation(GLfloat rot) {
-  rotation = rot;
+void Tetrino::RotateRight() {
+  rotation += 90;
+  rotation %= 360;
+}
+
+void Tetrino::RotateLeft() {
+  rotation -= 90;
+  rotation %= 360;
+}
+
+void Tetrino::DrawCells(unsigned int cells) {
+  glNewList(tetrino_drawlist, GL_COMPILE);
+  for (int i = 0; i < 4; i++)
+    for (int j = 0; j < 4; j++) {
+      if ((cells >> (j * 4 + i)) & 1) {
+	glBegin(GL_QUADS);
+	glVertex2i(-40 + 20 * i, -40 + 20 * j);
+	glVertex2i(-20 + 20 * i, -40 + 20 * j);
+	glVertex2i(-20 + 20 * i, -20 + 20 * j);
+	glVertex2i(-40 + 20 * i, -20 + 20 * j);
+	glEnd();
+      }
+#ifdef DEBUG
+      glBegin(GL_LINE_LOOP);
+      glVertex2i(-40 + 20 * i, -40 + 20 * j);
+      glVertex2i(-20 + 20 * i, -40 + 20 * j);
+      glVertex2i(-20 + 20 * i, -20 + 20 * j);
+      glVertex2i(-40 + 20 * i, -20 + 20 * j);  
+      glEnd();
+#endif
+    }
+#ifdef DEBUG
+  glColor3f(1, 0, 0);
+  glPointSize(4);
+  glBegin(GL_POINTS);
+  glVertex2i(0, 0);
+  glEnd();
+#endif
+  glEndList();
 }
 
 // Tetrinos in a 80x80 pixel square, grid lines every 20px
@@ -25,117 +64,59 @@ bool Tetrino::OnLoad(int tetrino_type) {
   tetrino_drawlist = glGenLists(1);
   switch(type) {
   case 0: {
-    glNewList(tetrino_drawlist, GL_COMPILE);
-    glBegin(GL_QUADS);
-
-    glVertex2i(0, 20);
-    glVertex2i(20, 20);
-    glVertex2i(20, 60);
-    glVertex2i(0, 60);
-
-    glVertex2i(0, 60);
-    glVertex2i(40, 60);
-    glVertex2i(40, 80);
-    glVertex2i(0, 80);
-
-    glEnd();
-    glEndList();
+    // . X . .
+    // . X . .
+    // . X X .
+    // . . . .
+    DrawCells(0x0622);
     break;
   }
   case 1: {
-    glNewList(tetrino_drawlist, GL_COMPILE);
-    glBegin(GL_QUADS);
-    glVertex2i(20, 0);
-    glVertex2i(40, 0);
-    glVertex2i(40, 80);
-    glVertex2i(20, 80);
-    glEnd();
-    glEndList();
+    // . X . .
+    // . X . .
+    // . X . .
+    // . X . .
+    DrawCells(0x2222);
     break;
   }
   case 2: {
-    glNewList(tetrino_drawlist, GL_COMPILE);
-    glBegin(GL_QUADS);
-
-    glVertex2i(40, 20);
-    glVertex2i(60, 20);
-    glVertex2i(60, 60);
-    glVertex2i(40, 60);
-
-    glVertex2i(20, 60);
-    glVertex2i(60, 60);
-    glVertex2i(60, 80);
-    glVertex2i(20, 80);
-
-    glEnd();
-    glEndList();
+    // . . X .
+    // . . X .
+    // . X X .
+    // . . . .
+    DrawCells(0x0644);
     break;
   }
   case 3: {
-    glNewList(tetrino_drawlist, GL_COMPILE);
-    glBegin(GL_QUADS);
-
-    glVertex2i(0, 60);
-    glVertex2i(60, 60);
-    glVertex2i(60, 80);
-    glVertex2i(0, 80);
-
-    glVertex2i(20, 40);
-    glVertex2i(40, 40);
-    glVertex2i(40, 60);
-    glVertex2i(20, 60);
-
-    glEnd();
-    glEndList();
+    // . . . .
+    // . X . .
+    // X X X .
+    // . . . .
+    DrawCells(0x0720);
     break;
   }
   case 4: {
-    glNewList(tetrino_drawlist, GL_COMPILE);
-    glBegin(GL_QUADS);
-
-    glVertex2i(0, 40);
-    glVertex2i(40, 40);
-    glVertex2i(40, 60);
-    glVertex2i(0, 60);
-
-    glVertex2i(20, 60);
-    glVertex2i(60, 60);
-    glVertex2i(60, 80);
-    glVertex2i(20, 80);
-
-    glEnd();
-    glEndList();
+    // . . . .
+    // X X . .
+    // . X X .
+    // . . . .
+    DrawCells(0x0630);
     break;
   }
   case 5: {
-    glNewList(tetrino_drawlist, GL_COMPILE);
-    glBegin(GL_QUADS);
-
-    glVertex2i(20, 40);
-    glVertex2i(60, 40);
-    glVertex2i(60, 60);
-    glVertex2i(20, 60);
-
-    glVertex2i(0, 60);
-    glVertex2i(40, 60);
-    glVertex2i(40, 80);
-    glVertex2i(0, 80);
-
-    glEnd();
-    glEndList();
+    // . . . .
+    // . . X X
+    // . X X .
+    // . . . .
+    DrawCells(0x0360);
     break;
   }
   case 6: {
-    glNewList(tetrino_drawlist, GL_COMPILE);
-    glBegin(GL_QUADS);
-
-    glVertex2i(0, 40);
-    glVertex2i(40, 40);
-    glVertex2i(40, 80);
-    glVertex2i(0, 80);
-
-    glEnd();
-    glEndList();
+    // . . . .
+    // . X X .
+    // . X X .
+    // . . . .
+    DrawCells(0x0660);
     break;
   }
   default: {
