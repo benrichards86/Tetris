@@ -3,6 +3,8 @@ ifeq ($(OS),Windows_NT)
   OPENGL_LIBS = -lopengl32
   SDL_INCLUDES = -I/usr/include/SDL
   SDL_LIBS = -L/usr/local/lib
+  ZIP = 7z
+  ZIPFLAGS = a -tzip
 else
   OPENGL_LIBS = -lgl
 endif
@@ -17,6 +19,9 @@ SOURCES = Tetris.cpp TEvent.cpp Tetrino.cpp
 HEADERS = Tetris.h TEvent.h Tetrino.h
 
 all: tetris
+
+zip: tetris.exe SDL.dll
+	$(ZIP) $(ZIPFLAGS) Tetris.zip tetris.exe SDL.dll
 
 tetris: $(HEADERS) $(SOURCES)
 ifndef RELEASE
