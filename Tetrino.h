@@ -3,28 +3,38 @@
 #include <vector>
 
 class Tetrino {
- public:
+ private:
   int x;
   int y;
   int rotation;
-  int type;
+  int cells;
   GLuint tetrino_drawlist;
+  int (*array_rep)[4];
+
+  struct RGBColor {
+    int red;
+    int green;
+    int blue;
+  };
 
  public:
   Tetrino();
-  virtual ~Tetrino();
+  ~Tetrino();
 
  public:
-  virtual bool OnLoad(int tetrino_type);
-  virtual void SetLocation(int x_loc, int y_loc);
-  virtual void RotateRight();
-  virtual void RotateLeft();
-  virtual void OnLoop();
-  virtual void OnRender();
-  virtual void OnCleanup();
+  bool OnLoad(int type);
+  void OnLoop();
+  void OnRender();
+  void OnCleanup();
+
+ public:
+  void SetLocation(int x_loc, int y_loc);
+  void RotateRight();
+  void RotateLeft();
+  int** ToArray();  
 
  private:
-  void DrawCells(unsigned int cells);
+  void DrawCells(unsigned int cells, RGBColor color);
 
 };
 

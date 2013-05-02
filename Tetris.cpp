@@ -77,8 +77,14 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
   // Quit if we pressed ESC
   if (mod == 0 && sym == 27) exit(0);
 
-  for (int i = 0; i < tetrinos.size(); i++)
-    tetrinos[i]->RotateRight();
+  if (sym != 304) {
+    if (mod == 0)
+      for (int i = 0; i < tetrinos.size(); i++)
+	tetrinos[i]->RotateRight();
+    else if (mod == 1)
+      for (int i = 0; i < tetrinos.size(); i++)
+	tetrinos[i]->RotateLeft();
+  }
 }
 
 void Tetris::OnEvent(SDL_Event* event) {
