@@ -75,7 +75,7 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
 #endif
 
   // Quit if we pressed ESC
-  if (mod == 0 && sym == 27) exit(0);
+  if (mod == 0 && sym == 27) OnExit();
 
   if (sym != 304) {
     if (mod == 0)
@@ -119,7 +119,7 @@ void Tetris::OnRender() {
 }
 
 void Tetris::OnCleanup() {
-  for (int i = 0; i < tetrinos.size(); i++) {
+ for (int i = 0; i < tetrinos.size(); i++) {
     if (!tetrinos[i]) continue;
     tetrinos[i]->OnCleanup();
     delete tetrinos[i];
@@ -132,7 +132,6 @@ void Tetris::OnCleanup() {
 #ifndef _WIN32
 int main(int argc, char** argv) {
   Tetris game;
-
   return game.OnExecute();
 }
 #else
