@@ -11,8 +11,8 @@
 
 #include <gl/gl.h>
 #include <gl/glu.h>
-#include "TEvent.h"
-#include "Tetrino.h"
+#include "TEvent.hpp"
+#include "Tetrino.hpp"
 
 class Tetris : public TEvent {
  private:

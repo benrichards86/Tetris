@@ -1,5 +1,5 @@
 #include <iostream>
-#include "Tetris.h"
+#include "Tetris.hpp"
 
 Tetris::Tetris() {
   surf_display = NULL;

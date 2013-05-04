@@ -1,7 +1,5 @@
 #include <iostream>
-#include "Tetrino.h"
-
-#define CELL_SIZE 20
+#include "Tetrino.hpp"
 
 Tetrino::Tetrino() {
   x = y = 0;

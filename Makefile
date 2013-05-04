@@ -15,8 +15,8 @@ DEBUGFLAGS = -g -DDEBUG
 RELEASEFLAGS = -O3
 LIBS = $(OPENGL_LIBS) $(PLATFORM_LIBS) $(SDL_LIBS)
 INCLUDES = $(SDL_INCLUDES)
-SOURCES = Tetris.cpp TEvent.cpp Tetrino.cpp
-HEADERS = Tetris.h TEvent.h Tetrino.h
+SOURCES = Tetris.cpp TEvent.cpp Tetrino.cpp TField.cpp
+HEADERS = Tetris.hpp TEvent.hpp Tetrino.hpp TField.hpp
 
 all: tetris
 

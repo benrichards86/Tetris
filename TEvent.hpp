@@ -1,5 +1,5 @@
-#ifndef TEVENT_H
-#define TEVENT_H
+#ifndef TEVENT_HPP
+#define TEVENT_HPP
 
 #ifdef _WIN32
 #include "SDL.h"
