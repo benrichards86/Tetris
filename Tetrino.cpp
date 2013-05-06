@@ -1,181 +1,173 @@
+#include <GL/glu.h>
+#include <GL/gl.h>
 #include <iostream>
+#include <vector>
 #include "Tetrino.hpp"
+#include "TCell.hpp"
+
+using namespace tetris;
 
 Tetrino::Tetrino() {
   x = y = 0;
   rotation = 0;
-  cells = 0xffff;
-  array_rep = new int[4][4];
+  cell_mask = 0xffff;
 }
 
 Tetrino::~Tetrino() {
-  delete array_rep;
-}
-
-void Tetrino::SetLocation(int x_loc, int y_loc) {
-  x = x_loc;
-  y = y_loc;
+  for (int i = 0; i < vec_rep.size(); i++)
+    delete vec_rep[i];
 }
 
 void Tetrino::RotateRight() {
   rotation += 90;
   rotation %= 360;
-  int (*new_rep)[4] = new int[4][4];
-  
-  // rotate
-  for (int i = 0; i < 4; i++)
-    for (int j = 0; j < 4; j++)
-      new_rep[j][i] = array_rep[i][3-j];
 
-  delete array_rep;
-  array_rep = new_rep;
-
-#ifdef DEBUG
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++)
-      std::cout << array_rep[j][i] << " ";
-    std::cout << std::endl;
-  }
-  std::cout << std::endl;
-#endif
+  for (int i = 0; i < vec_rep.size(); i++)
+    vec_rep[i]->RotateRight();
 }
 
 void Tetrino::RotateLeft() {
   rotation -= 90;
   rotation %= 360;
-  int (*new_rep)[4] = new int[4][4];
 
-  // rotate
-  for (int i = 0; i < 4; i++)
-    for (int j = 0; j < 4; j++)
-      new_rep[j][i] = array_rep[3-i][j];
+  for (int i = 0; i < vec_rep.size(); i++)
+    vec_rep[i]->RotateLeft();
+}
 
-  delete array_rep;
-  array_rep = new_rep;
-
-#ifdef DEBUG
+bool Tetrino::LoadCells(unsigned int cells, RGBColor color_value) {
+  cell_mask = cells;
+  color = color_value;
   for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < 4; j++)
-      std::cout << array_rep[j][i] << " ";
-    std::cout << std::endl;
-  }
-  std::cout << std::endl;
-#endif
-}
-
-int** Tetrino::ToArray() {
-  for (int i = 0; i < 4; i++)
-    for (int j = 0; j < 4; j++)
-      array_rep[i][j] = ((cells >> (j * 4 + i)) & 1) ? 1 : 0;
-  return reinterpret_cast<int**>(array_rep);
-}
-
-void Tetrino::DrawCells(unsigned int cells, RGBColor color) {
-  glNewList(tetrino_drawlist, GL_COMPILE);
-  glColor3ub(color.red, color.green, color.blue);
-  for (int i = 0; i < 4; i++)
     for (int j = 0; j < 4; j++) {
       if ((cells >> (j * 4 + i)) & 1) {
-	glBegin(GL_QUADS);
-	glVertex2i(-40 + 20 * i, -40 + 20 * j);
-	glVertex2i(-20 + 20 * i, -40 + 20 * j);
-	glVertex2i(-20 + 20 * i, -20 + 20 * j);
-	glVertex2i(-40 + 20 * i, -20 + 20 * j);
-	glEnd();
-	array_rep[i][j] = 1;
+	TCell *t = new TCell();
+	if (t->OnLoad(i, j, rotation, color))
+	  vec_rep.push_back(t);
       }
-      else
-	array_rep[i][j] = 0;
-
-#ifdef DEBUG
-      glBegin(GL_LINE_LOOP);
-      glVertex2i(-40 + 20 * i, -40 + 20 * j);
-      glVertex2i(-20 + 20 * i, -40 + 20 * j);
-      glVertex2i(-20 + 20 * i, -20 + 20 * j);
-      glVertex2i(-40 + 20 * i, -20 + 20 * j);  
-      glEnd();
-#endif
     }
-#ifdef DEBUG
-  glColor3f(1, 0, 0);
-  glPointSize(4);
-  glBegin(GL_POINTS);
-  glVertex2i(0, 0);
-  glEnd();
-#endif
-  glEndList();
+  }
+
+  return vec_rep.size() > 0;
 }
 
 // Tetrinos in a 80x80 pixel square, grid lines every 20px
-bool Tetrino::OnLoad(int type) {
+bool Tetrino::OnLoad(int type, int x_loc, int y_loc) {
+  x = x_loc;
+  y = y_loc;
+
   RGBColor color;
-  tetrino_drawlist = glGenLists(1);
   switch(type) {
   case 0: {
     color.red = color.green = 100;
     color.blue = 255;
-    cells = 0x0622;
+    cell_mask = 0x0622;
     break;
   }
   case 1: {
     color.red = color.blue = 100;
     color.green = 255;
-    cells = 0x2222;
+    cell_mask = 0x2222;
     break;
   }
   case 2: {
     color.red = 100;
     color.green = color.blue = 255;
-    cells = 0x0644;
+    cell_mask = 0x0644;
     break;
   }
   case 3: {
     color.red = 255;
     color.green = color.blue = 100;
-    cells = 0x0720;
+    cell_mask = 0x0720;
     break;
   }
   case 4: {
     color.red = color.blue = 255;
     color.green = 100;
-    cells = 0x0630;
+    cell_mask = 0x0630;
     break;
   }
   case 5: {
     color.red = color.green = 255;
     color.blue = 100;
-    cells = 0x0360;
+    cell_mask = 0x0360;
     break;
   }
   case 6: {
     color.red = 255;
     color.green = 180;
     color.blue = 100;
-    cells = 0x0660;
+    cell_mask = 0x0660;
     break;
   }
   default: {
     color.red = color.green = color.blue = 255;
-    cells = 0xa5a5;
+    cell_mask = 0xa5a5;
     break;
   }
   }
 
-  DrawCells(cells, color);
-
-  return true;
+  return LoadCells(cell_mask, color);
 }
 
 void Tetrino::OnLoop() {
 }
 
 void Tetrino::OnRender() {
+  for (int i = 0; i < vec_rep.size(); i++) {
+    glPushMatrix();
+    glTranslated(x, y, 0);
+    vec_rep[i]->OnRender();
+    glPopMatrix();
+  }
+  
+#ifdef DEBUG
   glPushMatrix();
   glTranslated(x, y, 0);
-  glRotatef(rotation, 0, 0, 1.0f);  
-  glCallList(tetrino_drawlist);
+  glColor3ub(255, 255, 255);
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+      glBegin(GL_LINE_LOOP);
+      glVertex2i(20 * (i - 1), 20 * (j - 1));
+      glVertex2i(20 * (i - 2), 20 * (j - 1));
+      glVertex2i(20 * (i - 2), 20 * (j - 2));
+      glVertex2i(20 * (i - 1), 20 * (j - 2));  
+      glEnd();
+    }
+  }
+
+  glColor3f(1, 0, 0);
+  glPointSize(4);
+  glBegin(GL_POINTS);
+  glVertex2i(0, 0);
+  glEnd();
   glPopMatrix();
+#endif
+}
+  
+void Tetrino::OnCleanup() {
 }
 
-void Tetrino::OnCleanup() {
+void Tetrino::MoveLeft() {
+  x -= 20;
+  for (int i = 0; i < vec_rep.size(); i++)
+    vec_rep[i]->MoveLeft();
+}
+
+void Tetrino::MoveRight() {
+  x += 20;
+  for (int i = 0; i < vec_rep.size(); i++)
+    vec_rep[i]->MoveRight();
+}
+
+void Tetrino::MoveUp() {
+  y -= 20;
+  for (int i = 0; i < vec_rep.size(); i++)
+    vec_rep[i]->MoveUp();
+}
+
+void Tetrino::MoveDown() {
+  y += 20;
+  for (int i = 0; i < vec_rep.size(); i++)
+    vec_rep[i]->MoveDown();
 }

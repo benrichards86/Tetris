@@ -1,6 +1,8 @@
 #include <iostream>
 #include "Tetris.hpp"
 
+using namespace tetris;
+
 Tetris::Tetris() {
   surf_display = NULL;
   resolution_x = 800;
@@ -57,8 +59,7 @@ bool Tetris::OnInit() {
   // Debug since we're not spawning them throughout the game, yet
   for (int i = 0; i < 7; i++) {
     Tetrino *tetrino = new Tetrino();
-    tetrino->OnLoad(i);
-    tetrino->SetLocation(50 + 100 * i, 160);
+    tetrino->OnLoad(i, 50 + 100 * i, 160);
     tetrinos.push_back(tetrino);
   }
   // End debug

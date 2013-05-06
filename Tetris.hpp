@@ -1,5 +1,5 @@
-#ifndef TETRIS_H
-#define TETRIS_H
+#ifndef TETRIS_HPP
+#define TETRIS_HPP
 
 #ifdef _WIN32
 #include <windows.h>
@@ -7,12 +7,17 @@
 #else
 #include <SDL/SDL.h>
 #endif
+
 #include <vector>
 
 #include <gl/gl.h>
 #include <gl/glu.h>
+
+#include "RGBColor.hpp"
 #include "TEvent.hpp"
 #include "Tetrino.hpp"
+
+namespace tetris {
 
 class Tetris : public TEvent {
  private:
@@ -39,5 +44,7 @@ class Tetris : public TEvent {
   void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);
   void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
 };
+
+}
 
 #endif

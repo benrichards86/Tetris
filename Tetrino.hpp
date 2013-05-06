@@ -1,40 +1,47 @@
-#include <GL/gl.h>
+#ifndef TETRINO_HPP
+#define TETRINO_HPP
+
 #include <GL/glu.h>
+#include <GL/gl.h>
 #include <vector>
+#include "RGBColor.hpp"
+#include "TCell.hpp"
+
+namespace tetris {
 
 class Tetrino {
- private:
+private:
   int x;
   int y;
   int rotation;
-  int cells;
   GLuint tetrino_drawlist;
-  int (*array_rep)[4];
+  std::vector<TCell*> vec_rep;
+  int cell_mask;
+  RGBColor color;
 
-  struct RGBColor {
-    int red;
-    int green;
-    int blue;
-  };
-
- public:
+public:
   Tetrino();
   ~Tetrino();
 
- public:
-  bool OnLoad(int type);
+public:
+  bool OnLoad(int type, int x_loc, int y_loc);
   void OnLoop();
   void OnRender();
   void OnCleanup();
 
- public:
-  void SetLocation(int x_loc, int y_loc);
+public:
   void RotateRight();
   void RotateLeft();
-  int** ToArray();  
+  void MoveLeft();
+  void MoveRight();
+  void MoveUp();
+  void MoveDown();
 
- private:
-  void DrawCells(unsigned int cells, RGBColor color);
+private:
+  bool LoadCells(unsigned int cells, RGBColor color_value);
 
 };
 
+}
+
+#endif

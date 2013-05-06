@@ -7,6 +7,8 @@
 #include <SDL/SDL.h>
 #endif
 
+namespace tetris {
+
 class TEvent {
  public:
   TEvent();
@@ -40,5 +42,7 @@ class TEvent {
   virtual void OnUser(Uint8 type, int code, void* data1, void* data2);
 
 };
+
+}
 
 #endif

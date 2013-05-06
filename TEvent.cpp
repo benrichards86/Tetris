@@ -1,4 +1,6 @@
 #include "TEvent.hpp"
+
+using namespace tetris;
  
 TEvent::TEvent() {
 }
