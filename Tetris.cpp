@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include "Tetris.hpp"
 
@@ -5,8 +7,9 @@ using namespace tetris;
 
 Tetris::Tetris() {
   surf_display = NULL;
-  resolution_x = 800;
-  resolution_y = 600;
+  resolution_x = 1024;
+  resolution_y = 768;
+  scale = 20;
   running = true;
 }
 
@@ -56,13 +59,12 @@ bool Tetris::OnInit() {
   glEnable(GL_TEXTURE_2D);
   glLoadIdentity();
 
-  // Debug since we're not spawning them throughout the game, yet
-  for (int i = 0; i < 7; i++) {
-    Tetrino *tetrino = new Tetrino();
-    tetrino->OnLoad(i, 50 + 100 * i, 160);
-    tetrinos.push_back(tetrino);
-  }
-  // End debug
+  // This is how we start a tetrino in play
+  srand(time(NULL));
+  int type = rand() % 7;
+  Tetrino *tetrino = new Tetrino;
+  tetrino->OnLoad(type);
+  play_field.StartTetrino(tetrino);
 
   return true;
 }
@@ -79,12 +81,14 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
   if (mod == 0 && sym == 27) OnExit();
 
   if (sym != 304) {
-    if (mod == 0)
-      for (int i = 0; i < tetrinos.size(); i++)
-	tetrinos[i]->RotateRight();
-    else if (mod == 1)
-      for (int i = 0; i < tetrinos.size(); i++)
-	tetrinos[i]->RotateLeft();
+    if (mod == 0) {
+      if (play_field.current_tetrino != NULL)
+	play_field.current_tetrino->RotateRight();
+    }
+    else if (mod == 1) {
+      if (play_field.current_tetrino != NULL)
+	play_field.current_tetrino->RotateLeft();
+    }
   }
 }
 
@@ -97,34 +101,20 @@ void Tetris::OnExit() {
 }
 
 void Tetris::OnLoop() {
-  for (int i = 0; i < tetrinos.size(); i++) {
-    if (!tetrinos[i]) continue;
-    tetrinos[i]->OnLoop();
-  }
+  play_field.OnLoop();
 }
 
 void Tetris::OnRender() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glLoadIdentity();
 
-  glPushMatrix();
-
-  for (int i = 0; i < tetrinos.size(); i++) {
-    if (!tetrinos[i]) continue;
-    tetrinos[i]->OnRender();
-  }
-
-  glPopMatrix();
+  play_field.OnRender();
 
   SDL_GL_SwapBuffers();
 }
 
 void Tetris::OnCleanup() {
- for (int i = 0; i < tetrinos.size(); i++) {
-    if (!tetrinos[i]) continue;
-    tetrinos[i]->OnCleanup();
-    delete tetrinos[i];
-  }
+  play_field.OnCleanup();
 
   SDL_FreeSurface(surf_display);
   SDL_Quit();

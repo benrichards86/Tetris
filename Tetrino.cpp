@@ -8,7 +8,8 @@
 using namespace tetris;
 
 Tetrino::Tetrino() {
-  x = y = 0;
+  row = 0;
+  column = 10;
   rotation = 0;
   cell_mask = 0xffff;
 }
@@ -51,10 +52,7 @@ bool Tetrino::LoadCells(unsigned int cells, RGBColor color_value) {
 }
 
 // Tetrinos in a 80x80 pixel square, grid lines every 20px
-bool Tetrino::OnLoad(int type, int x_loc, int y_loc) {
-  x = x_loc;
-  y = y_loc;
-
+bool Tetrino::OnLoad(int type) {
   RGBColor color;
   switch(type) {
   case 0: {
@@ -116,14 +114,14 @@ void Tetrino::OnLoop() {
 void Tetrino::OnRender() {
   for (int i = 0; i < vec_rep.size(); i++) {
     glPushMatrix();
-    glTranslated(x, y, 0);
+    glTranslated(column * 20, row * 20, 0);
     vec_rep[i]->OnRender();
     glPopMatrix();
   }
   
 #ifdef DEBUG
   glPushMatrix();
-  glTranslated(x, y, 0);
+  glTranslated(column * 20, row * 20, 0);
   glColor3ub(255, 255, 255);
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
@@ -149,25 +147,29 @@ void Tetrino::OnCleanup() {
 }
 
 void Tetrino::MoveLeft() {
-  x -= 20;
+  column--;
   for (int i = 0; i < vec_rep.size(); i++)
     vec_rep[i]->MoveLeft();
 }
 
 void Tetrino::MoveRight() {
-  x += 20;
+  column++;
   for (int i = 0; i < vec_rep.size(); i++)
     vec_rep[i]->MoveRight();
 }
 
 void Tetrino::MoveUp() {
-  y -= 20;
+  row--;
   for (int i = 0; i < vec_rep.size(); i++)
     vec_rep[i]->MoveUp();
 }
 
 void Tetrino::MoveDown() {
-  y += 20;
+  row++;
   for (int i = 0; i < vec_rep.size(); i++)
     vec_rep[i]->MoveDown();
+}
+
+TCell* Tetrino::operator[](int index) {
+  return vec_rep[index];
 }

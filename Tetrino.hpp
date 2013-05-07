@@ -11,8 +11,6 @@ namespace tetris {
 
 class Tetrino {
 private:
-  int x;
-  int y;
   int rotation;
   GLuint tetrino_drawlist;
   std::vector<TCell*> vec_rep;
@@ -20,11 +18,15 @@ private:
   RGBColor color;
 
 public:
+  int row;
+  int column;
+
+public:
   Tetrino();
   ~Tetrino();
 
 public:
-  bool OnLoad(int type, int x_loc, int y_loc);
+  bool OnLoad(int type);
   void OnLoop();
   void OnRender();
   void OnCleanup();
@@ -36,6 +38,7 @@ public:
   void MoveRight();
   void MoveUp();
   void MoveDown();
+  TCell* operator[](int index);
 
 private:
   bool LoadCells(unsigned int cells, RGBColor color_value);

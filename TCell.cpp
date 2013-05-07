@@ -6,7 +6,7 @@
 using namespace tetris;
 
 TCell::TCell() {
-  x = y = 0;
+  row = column = 0;
   rot = 0;
   color.red = color.green = color.blue = 255;
 }
@@ -14,9 +14,9 @@ TCell::TCell() {
 TCell::~TCell() {
 }
 
-bool TCell::OnLoad(int x_loc, int y_loc, int rotation, RGBColor base_color) {
-  x = x_loc;
-  y = y_loc;
+bool TCell::OnLoad(int column_loc, int row_loc, int rotation, RGBColor base_color) {
+  column = column_loc;
+  row = row_loc;
   rot = rotation;
   color = base_color;
   return true;
@@ -32,10 +32,10 @@ void TCell::OnRender() {
   glColor3ub(color.red, color.green, color.blue);
 
   glBegin(GL_QUADS);
-  glVertex2i(20 * x - 40, 20 * y - 40);
-  glVertex2i(20 * x - 20, 20 * y - 40);
-  glVertex2i(20 * x - 20, 20 * y - 20);
-  glVertex2i(20 * x - 40, 20 * y - 20);
+  glVertex2i(20 * column - 40, 20 * row - 40);
+  glVertex2i(20 * column - 20, 20 * row - 40);
+  glVertex2i(20 * column - 20, 20 * row - 20);
+  glVertex2i(20 * column - 40, 20 * row - 20);
   glEnd();
 
   glPopMatrix();
@@ -55,17 +55,17 @@ void TCell::RotateLeft() {
 }
 
 void TCell::MoveLeft() {
-  x--;
+  column--;
 }
 
 void TCell::MoveRight() {
-  x++;
+  column++;
 }
 
 void TCell::MoveUp() {
-  y++;
+  row--;
 }
 
 void TCell::MoveDown() {
-  y--;
+  row++;
 }

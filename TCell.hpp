@@ -8,8 +8,8 @@ namespace tetris {
 // Defines a single cell. Makes up tetrino pieces.
 class TCell {
 private:
-  int x;
-  int y;
+  int row;
+  int column;
   int rot;
   RGBColor color;
 
@@ -31,7 +31,6 @@ public:
   void MoveDown();
   void MoveLeft();
   void MoveRight();
-
 };
 
 }

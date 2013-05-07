@@ -8,14 +8,13 @@
 #include <SDL/SDL.h>
 #endif
 
-#include <vector>
-
-#include <gl/gl.h>
-#include <gl/glu.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
 
 #include "RGBColor.hpp"
 #include "TEvent.hpp"
 #include "Tetrino.hpp"
+#include "TField.hpp"
 
 namespace tetris {
 
@@ -23,10 +22,12 @@ class Tetris : public TEvent {
  private:
   bool running;
   SDL_Surface* surf_display;
-  std::vector<Tetrino*> tetrinos; // Tetrinos in play on the screen
+  TField play_field;
 
   int resolution_x;
   int resolution_y;
+
+  int scale;
 
  public:
   Tetris();
