@@ -45,6 +45,8 @@ bool TField::StartTetrino(Tetrino *t) {
   t->row = 2;
   t->column = (int)(FIELD_WIDTH / 2);
   current_tetrino = t;
+
+  return true;
 }
 
 void TField::OnLoop() {
