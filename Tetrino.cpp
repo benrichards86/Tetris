@@ -10,29 +10,12 @@ using namespace tetris;
 Tetrino::Tetrino() {
   row = 0;
   column = 10;
-  rotation = 0;
   cell_mask = 0xffff;
 }
 
 Tetrino::~Tetrino() {
   for (int i = 0; i < vec_rep.size(); i++)
     delete vec_rep[i];
-}
-
-void Tetrino::RotateRight() {
-  rotation += 90;
-  rotation %= 360;
-
-  for (int i = 0; i < vec_rep.size(); i++)
-    vec_rep[i]->RotateRight();
-}
-
-void Tetrino::RotateLeft() {
-  rotation -= 90;
-  rotation %= 360;
-
-  for (int i = 0; i < vec_rep.size(); i++)
-    vec_rep[i]->RotateLeft();
 }
 
 bool Tetrino::LoadCells(unsigned int cells, RGBColor color_value) {
@@ -42,7 +25,7 @@ bool Tetrino::LoadCells(unsigned int cells, RGBColor color_value) {
     for (int j = 0; j < 4; j++) {
       if ((cells >> (j * 4 + i)) & 1) {
 	TCell *t = new TCell();
-	if (t->OnLoad(i, j, rotation, color))
+	if (t->OnLoad(i, j, color))
 	  vec_rep.push_back(t);
       }
     }
@@ -100,7 +83,7 @@ bool Tetrino::OnLoad(int type) {
   }
   default: {
     color.red = color.green = color.blue = 255;
-    cell_mask = 0xa5a5;
+    cell_mask = 0xffff;
     break;
   }
   }
@@ -148,28 +131,49 @@ void Tetrino::OnCleanup() {
 
 void Tetrino::MoveLeft() {
   column--;
-  for (int i = 0; i < vec_rep.size(); i++)
-    vec_rep[i]->MoveLeft();
+#ifdef DEBUG
+  std::cout << "row:" << row << ", column:" << column << std::endl;
+#endif
 }
 
 void Tetrino::MoveRight() {
   column++;
-  for (int i = 0; i < vec_rep.size(); i++)
-    vec_rep[i]->MoveRight();
+#ifdef DEBUG
+  std::cout << "row:" << row << ", column:" << column << std::endl;
+#endif
 }
 
 void Tetrino::MoveUp() {
   row--;
-  for (int i = 0; i < vec_rep.size(); i++)
-    vec_rep[i]->MoveUp();
+#ifdef DEBUG
+  std::cout << "row:" << row << ", column:" << column << std::endl;
+#endif
 }
 
 void Tetrino::MoveDown() {
   row++;
-  for (int i = 0; i < vec_rep.size(); i++)
-    vec_rep[i]->MoveDown();
+#ifdef DEBUG
+  std::cout << "row:" << row << ", column:" << column << std::endl;
+#endif
+}
+
+void Tetrino::RotateRight() {
+  for (int i = 0; i < vec_rep.size(); i++) {
+    int old_column = vec_rep[i]->column;
+    vec_rep[i]->column = 3 - vec_rep[i]->row;
+    vec_rep[i]->row = old_column;
+  }
+}
+
+void Tetrino::RotateLeft() {
+  for (int i = 0; i < vec_rep.size(); i++) {
+    int old_row = vec_rep[i]->row;
+    vec_rep[i]->row = 3 - vec_rep[i]->column;
+    vec_rep[i]->column = old_row;
+  }
 }
 
 TCell* Tetrino::operator[](int index) {
   return vec_rep[index];
 }
+

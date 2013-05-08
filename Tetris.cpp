@@ -74,20 +74,50 @@ void Tetris::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
 
 void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
 #ifdef DEBUG
-  std::cout << "Key pressed: " << mod << " + " << sym << std::endl;
+  std::cout << "Key pressed: " << mod << " + " << sym << " [" << unicode << "]" <<  std::endl;
 #endif
 
   // Quit if we pressed ESC
-  if (mod == 0 && sym == 27) OnExit();
-
-  if (sym != 304) {
-    if (mod == 0) {
+  if (mod == 0) {
+    switch(sym) {
+    case 27: {
+      OnExit();
+      break;
+    }
+    case 276: {
+      if (play_field.current_tetrino != NULL)
+	play_field.current_tetrino->MoveLeft();
+      break;
+    }
+    case 275: {
+      if (play_field.current_tetrino != NULL)
+	play_field.current_tetrino->MoveRight();
+      break;
+    }
+    case 273: {
+      if (play_field.current_tetrino != NULL)
+	play_field.current_tetrino->MoveUp();
+      break;
+    }
+    case 274: {
+      if (play_field.current_tetrino != NULL)
+	play_field.current_tetrino->MoveDown();
+      break;
+    }
+    case 32: {
+      if (play_field.DropCurrentTetrino()) {
+	int type = rand() % 7;
+	Tetrino *tetrino = new Tetrino;
+	tetrino->OnLoad(type);
+	play_field.StartTetrino(tetrino);
+      }
+      break;
+    }
+    default: {
       if (play_field.current_tetrino != NULL)
 	play_field.current_tetrino->RotateRight();
+      break;
     }
-    else if (mod == 1) {
-      if (play_field.current_tetrino != NULL)
-	play_field.current_tetrino->RotateLeft();
     }
   }
 }

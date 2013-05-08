@@ -26,6 +26,7 @@ public:
 public:
   bool CheckIfIntersect(Tetrino *t);
   bool StartTetrino(Tetrino *t);
+  bool DropCurrentTetrino();
   
 private:
   std::vector<TCell*> field_cells;

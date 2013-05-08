@@ -7,10 +7,11 @@ namespace tetris {
 
 // Defines a single cell. Makes up tetrino pieces.
 class TCell {
-private:
-  int row;
+public:
+  int row;   // row and column of cell within tetrino
   int column;
-  int rot;
+
+private:
   RGBColor color;
 
 public:
@@ -18,19 +19,10 @@ public:
   ~TCell();
 
 public:
-  bool OnLoad(int x_loc, int y_loc, int rotation, RGBColor color);
+  bool OnLoad(int x_loc, int y_loc, RGBColor color);
   void OnLoop();
   void OnRender();
   void OnCleanup();
-
-public:
-  void SetLocation(int x_loc, int y_loc);
-  void RotateRight();
-  void RotateLeft();
-  void MoveUp();
-  void MoveDown();
-  void MoveLeft();
-  void MoveRight();
 };
 
 }

@@ -17,6 +17,7 @@ LIBS = $(OPENGL_LIBS) $(PLATFORM_LIBS) $(SDL_LIBS)
 INCLUDES = $(SDL_INCLUDES)
 SOURCES = Tetris.cpp TEvent.cpp Tetrino.cpp TField.cpp TCell.cpp RGBColor.cpp
 HEADERS = Tetris.hpp TEvent.hpp Tetrino.hpp TField.hpp TCell.hpp RGBColor.hpp
+TARGET ?= debug
 
 all: tetris
 
@@ -24,10 +25,12 @@ zip: tetris.exe SDL.dll
 	$(ZIP) $(ZIPFLAGS) Tetris.zip tetris.exe SDL.dll
 
 tetris: $(HEADERS) $(SOURCES)
-ifndef RELEASE
+ifeq ($(TARGET),debug)
 	$(CC) $(SOURCES) $(CFLAGS) $(DEBUGFLAGS) $(INCLUDES) $(LIBS) -o $@
-else
+else ifeq ($(TARGET),release)
 	$(CC) $(SOURCES) $(CFLAGS) $(RELEASEFLAGS) $(INCLUDES) $(LIBS) -o $@
+else
+	$(error "Unknown build target!")
 endif
 
 .PHONY:

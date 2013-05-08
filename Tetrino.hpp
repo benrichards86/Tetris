@@ -11,7 +11,6 @@ namespace tetris {
 
 class Tetrino {
 private:
-  int rotation;
   GLuint tetrino_drawlist;
   std::vector<TCell*> vec_rep;
   int cell_mask;
