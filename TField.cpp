@@ -30,11 +30,13 @@ bool TField::Add(Tetrino *t) {
 #endif
       curr->row +=  t->row;
       curr->column += t->column;
-      field_cells.push_back(curr);
-      field[curr->row][curr->column] = curr;
+      if (curr->row >= 0 && curr->row < FIELD_HEIGHT && curr->column >= 0 && curr->column < FIELD_WIDTH) {
+	field_cells.push_back(curr);
+	field[curr->row][curr->column] = curr;
 #ifdef DEBUG
-      std::cout << "Dropping cell at row:" << curr->row << ", column:" << curr->column << std::endl;
+	std::cout << "Dropping cell at row:" << curr->row << ", column:" << curr->column << std::endl;
 #endif
+      }
     }
   }
   else {
@@ -55,8 +57,13 @@ bool TField::CheckIfIntersect(Tetrino *t) {
     TCell *curr = (*t)[i];
     int row = t->row + curr->row;
     int column = t->column + curr->column;
-    if (field[row][column] != NULL)
+    if (row >= 0 && row < FIELD_HEIGHT && column >= 0 && column < FIELD_WIDTH) {
+      if (field[row][column] != NULL)
+	return true;
+    }
+    else {
       return true;
+    }
   }
 
   return false;
