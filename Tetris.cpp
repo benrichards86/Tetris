@@ -7,10 +7,35 @@ using namespace tetris;
 
 Tetris::Tetris() {
   surf_display = NULL;
+
   resolution_x = 1024;
   resolution_y = 768;
+  fullscreen = false;
+
   scale = 20;
   running = true;
+}
+
+bool Tetris::SetDisplayMode(int res_x, int res_y, int bpp, bool fullscreen_mode) {
+#ifdef DEBUG
+  std::cout << "Switching to display mode: " << res_x << "x" << res_y << "x" << bpp << " [" << (fullscreen_mode ? "fullscreen" : "windowed") << "]" << std::endl;
+#endif
+
+  fullscreen = fullscreen_mode;
+
+  if (fullscreen_mode)
+    surf_display = SDL_SetVideoMode(0, 0, bpp, SDL_HWSURFACE | SDL_OPENGL | SDL_FULLSCREEN);
+  else 
+    surf_display = SDL_SetVideoMode(resolution_x, resolution_y, bpp, SDL_HWSURFACE | SDL_OPENGL);
+     
+  if (surf_display == NULL) {
+    std::cerr << "Error switching " << (fullscreen_mode ? "into" : "out of") << " full screen mode!" << std::endl;
+    return false;
+  }
+
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+  return true;
 }
 
 int Tetris::OnExecute() {
@@ -40,11 +65,8 @@ bool Tetris::OnInit() {
     return false;
   }
 
-  if ((surf_display = SDL_SetVideoMode(resolution_x, resolution_y, 32, SDL_HWSURFACE | SDL_OPENGL)) == NULL) {
+  if (!SetDisplayMode(resolution_x, resolution_y, 32, fullscreen))
     return false;
-  }
-
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
   // OpenGL intitializations
   glClearColor(0, 0, 0, 0);
@@ -76,6 +98,13 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
 #ifdef DEBUG
   std::cout << "Key pressed: " << mod << " + " << sym << " [" << unicode << "]" <<  std::endl;
 #endif
+
+  // Alt+Enter to switch between fullscreen & windowed mode
+  std::cout << "kmod_alt = " << (int)KMOD_ALT << ", SDLK_RETURN = " << (int)SDLK_RETURN << std::endl;
+  if ((mod == KMOD_LALT || mod == KMOD_RALT) && sym == SDLK_RETURN) {
+    if (!SetDisplayMode(resolution_x, resolution_y, 32, !fullscreen))
+      OnExit();
+  }
 
   // Quit if we pressed ESC
   switch(sym) {

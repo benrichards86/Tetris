@@ -26,6 +26,7 @@ class Tetris : public TEvent {
 
   int resolution_x;
   int resolution_y;
+  bool fullscreen;   // true = fullscreen mode, false = windowed mode
 
   int scale;
 
@@ -40,6 +41,9 @@ class Tetris : public TEvent {
   void OnLoop();
   void OnRender();
   void OnCleanup();
+
+private:
+  bool SetDisplayMode(int res_x, int res_y, int bpp, bool fullscreen_mode);
 
  public:
   void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);
