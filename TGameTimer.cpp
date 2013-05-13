@@ -7,7 +7,7 @@
 #include <functional>
 #include "TGameTimer.hpp"
 
-#define GET_TIMER_RATE(l)  ((50 - (l)) * 10)
+#define GET_TIMER_RATE(l)  ((50 - (l)) * 20)
 
 TGameTimer::TGameTimer() {
   level = 0;

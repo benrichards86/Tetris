@@ -78,8 +78,8 @@ bool TField::CheckIfIntersect(Tetrino *t) {
 void TField::SpawnTetrino() {
   current_tetrino = new Tetrino;
   current_tetrino->OnLoad(rand() % 7);
-  current_tetrino->row = 2;
-  current_tetrino->column = (int)(FIELD_WIDTH / 2);
+  current_tetrino->row = 0;
+  current_tetrino->column = (int)(FIELD_WIDTH / 2) - 2;
 }
 
 // Drops a tetrino in place into the field

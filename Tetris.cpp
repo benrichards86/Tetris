@@ -6,9 +6,15 @@ using namespace tetris;
 Tetris::Tetris() {
   surf_display = NULL;
 
+#if 1
   resolution_x = 1024;
   resolution_y = 768;
   fullscreen = false;
+#else
+  resolution_x = 1920;
+  resolution_y = 1080;
+  fullscreen = true;
+#endif
 
   scale = 20;
   level = 0;
@@ -197,6 +203,9 @@ int main(int argc, char** argv) {
 }
 #else
 int WinMain(HINSTANCE__* hInstance, HINSTANCE__* hPrevInstance, char* lpCmdLine, int nCmdShow) {
+#ifdef DEBUG
+  std::cout << lpCmdLine << ", " << nCmdShow << std::endl;
+#endif
   Tetris game;
   return game.OnExecute();
 }
