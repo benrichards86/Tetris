@@ -118,7 +118,6 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
 #endif
 
   // Alt+Enter to switch between fullscreen & windowed mode
-  std::cout << "kmod_alt = " << (int)KMOD_ALT << ", SDLK_RETURN = " << (int)SDLK_RETURN << std::endl;
   if ((mod == KMOD_LALT || mod == KMOD_RALT) && sym == SDLK_RETURN) {
     if (!SetDisplayMode(resolution_x, resolution_y, 32, !fullscreen))
       OnExit();
