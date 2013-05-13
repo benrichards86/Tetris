@@ -1,7 +1,7 @@
 #ifndef TETRIS_HPP
 #define TETRIS_HPP
 
-#ifdef _WIN32
+#if defined _WIN32 || defined __CYGWIN__
 #include <windows.h>
 #include "SDL.h"
 #else
@@ -15,6 +15,7 @@
 #include "TEvent.hpp"
 #include "Tetrino.hpp"
 #include "TField.hpp"
+#include "TGameTimer.hpp"
 
 namespace tetris {
 
@@ -29,6 +30,9 @@ class Tetris : public TEvent {
   bool fullscreen;   // true = fullscreen mode, false = windowed mode
 
   int scale;
+
+  int level;
+  TGameTimer game_timer;
 
  public:
   Tetris();

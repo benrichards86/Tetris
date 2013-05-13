@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <ctime>
 #include <iostream>
 #include <vector>
 #include <GL/glu.h>
@@ -15,6 +17,9 @@ TField::TField() {
   for (int r = 0; r < FIELD_HEIGHT; r++)
     for (int c = 0; c < FIELD_WIDTH; c++)
       field[r][c] = NULL;
+
+
+  srand(time(NULL));
 }
 
 TField::~TField() {
@@ -69,12 +74,12 @@ bool TField::CheckIfIntersect(Tetrino *t) {
   return false;
 }
 
-// Places a tetrino at the top and starts making it fall
-bool TField::StartTetrino(Tetrino *t) {
-  t->row = 2;
-  t->column = (int)(FIELD_WIDTH / 2);
-  current_tetrino = t;
-  return true;
+// Spawn a new tetrino
+void TField::SpawnTetrino() {
+  current_tetrino = new Tetrino;
+  current_tetrino->OnLoad(rand() % 7);
+  current_tetrino->row = 2;
+  current_tetrino->column = (int)(FIELD_WIDTH / 2);
 }
 
 // Drops a tetrino in place into the field

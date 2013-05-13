@@ -1,37 +1,47 @@
 ifeq ($(OS),Windows_NT)
+  CC = i686-pc-mingw32-g++
   PLATFORM_LIBS = -mno-cygwin -mwindows
   OPENGL_LIBS = -lopengl32
-  SDL_INCLUDES = -I/usr/include/SDL
-  SDL_LIBS = -L/usr/local/lib
+  SDL_INCLUDES = -I/usr/local/include/SDL -I/usr/include/mingw
   ZIP = 7z
   ZIPFLAGS = a -tzip
+  CFLAGS = -mno-cygwin
 else
-  OPENGL_LIBS = -lgl
+  OPENGL_LIBS = -lgl -lglu
 endif
 
-SDL_LIBS = -lSDL -lSDLmain
-CC = g++-3
+#SDL_LIBS := -L/usr/local/lib -lmingw32 -lSDLmain -lSDL
+SDL_LIBS := -L/usr/local/lib -lmingw32 -lSDL
 DEBUGFLAGS = -g -DDEBUG
 RELEASEFLAGS = -O3
-LIBS = $(OPENGL_LIBS) $(PLATFORM_LIBS) $(SDL_LIBS)
+LDFLAGS := $(PLATFORM_LIBS) $(SDL_LIBS) $(OPENGL_LIBS)
 INCLUDES = $(SDL_INCLUDES)
-SOURCES = Tetris.cpp TEvent.cpp Tetrino.cpp TField.cpp TCell.cpp RGBColor.cpp
-HEADERS = Tetris.hpp TEvent.hpp Tetrino.hpp TField.hpp TCell.hpp RGBColor.hpp
+SOURCES = Tetris.cpp TEvent.cpp Tetrino.cpp TField.cpp TCell.cpp RGBColor.cpp TGameTimer.cpp
+HEADERS = Tetris.hpp TEvent.hpp Tetrino.hpp TField.hpp TCell.hpp RGBColor.hpp TGameTimer.hpp
+OBJECTS = Tetris.o TEvent.o Tetrino.o TField.o TCell.o RGBColor.o TGameTimer.o
 TARGET ?= debug
+#CFLAGS := $(CFLAGS) -Dmain=SDL_main
+CFLAGS := $(CFLAGS)
 
-all: tetris
+ifeq ($(TARGET),debug)
+  CFLAGS := $(CFLAGS) $(DEBUGFLAGS)
+else ifeq ($(TARGET),release)
+  CFLAGS := $(CFLAGS) $(RELEASEFLAGS)
+else
+  $(error "Unknown build target!")
+endif
+
+all: $(OBJECTS) tetris
 
 zip: tetris.exe SDL.dll
 	$(ZIP) $(ZIPFLAGS) Tetris.zip tetris.exe SDL.dll
 
-tetris: $(HEADERS) $(SOURCES)
-ifeq ($(TARGET),debug)
-	$(CC) $(SOURCES) $(CFLAGS) $(DEBUGFLAGS) $(INCLUDES) $(LIBS) -o $@
-else ifeq ($(TARGET),release)
-	$(CC) $(SOURCES) $(CFLAGS) $(RELEASEFLAGS) $(INCLUDES) $(LIBS) -o $@
-else
-	$(error "Unknown build target!")
-endif
+$(OBJECTS): %.o: %.cpp %.hpp
+	$(CC) $(CFLAGS) $(INCLUDES) -c -std=c++0x $< -o $@
+
+
+tetris: $(OBJECTS)
+	$(CC) $(CFLAGS) $^ $(LDFLAGS) -static-libstdc++ -static-libgcc -o $@
 
 .PHONY:
 run: tetris
@@ -39,7 +49,7 @@ run: tetris
 
 .PHONY:
 clean:
-	rm -f tetris.exe tetris.exe.stackdump tetris.zip
+	rm -f *.o tetris.exe tetris.exe.stackdump tetris.zip
 
 .PHONY:
 prune:

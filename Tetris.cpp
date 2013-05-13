@@ -1,5 +1,3 @@
-#include <cstdlib>
-#include <ctime>
 #include <iostream>
 #include "Tetris.hpp"
 
@@ -13,6 +11,8 @@ Tetris::Tetris() {
   fullscreen = false;
 
   scale = 20;
+  level = 0;
+
   running = true;
 }
 
@@ -81,13 +81,31 @@ bool Tetris::OnInit() {
   glEnable(GL_TEXTURE_2D);
   glLoadIdentity();
 
-  // This is how we start a tetrino in play
-  srand(time(NULL));
-  int type = rand() % 7;
-  Tetrino *tetrino = new Tetrino;
-  tetrino->OnLoad(type);
-  play_field.StartTetrino(tetrino);
+  game_timer.SetCurrentLevel(0);
 
+  // Register the callback function for the game events
+  auto tetris_timer_events = [&] {
+    Tetrino *curr = play_field.current_tetrino;
+    if (curr) {
+      curr->MoveDown();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino)) {
+	curr->MoveUp();
+	if (!play_field.DropCurrentTetrino()) {
+	  // game over
+	  std::cout << "Game over!" << std::endl;
+	  game_timer.enabled = false;
+	}
+	else {
+	}
+      }
+    }
+    else {
+      play_field.SpawnTetrino();
+    }
+  };
+
+  game_timer.SetCallback(tetris_timer_events);
+  
   return true;
 }
 
@@ -133,12 +151,7 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     break;
   }
   case SDLK_SPACE: {
-    if (play_field.DropCurrentTetrino()) {
-      int type = rand() % 7;
-      Tetrino *tetrino = new Tetrino;
-      tetrino->OnLoad(type);
-      play_field.StartTetrino(tetrino);
-    }
+    play_field.DropCurrentTetrino();
     break;
   }
   default: {
@@ -158,6 +171,7 @@ void Tetris::OnExit() {
 }
 
 void Tetris::OnLoop() {
+  game_timer.OnLoop();
   play_field.OnLoop();
 }
 

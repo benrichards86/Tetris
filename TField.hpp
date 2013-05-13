@@ -25,7 +25,7 @@ public:
 
 public:
   bool CheckIfIntersect(Tetrino *t);
-  bool StartTetrino(Tetrino *t);
+  void  SpawnTetrino();
   bool DropCurrentTetrino();
   
 private:
