@@ -1,4 +1,15 @@
 #include <iostream>
+
+#if defined _WIN32 || defined __CYGWIN__
+#include <windows.h>
+#include "SDL.h"
+#else
+#include <SDL/SDL.h>
+#endif
+
+#include <GL/gl.h>
+#include <GL/glu.h>
+
 #include "Tetris.hpp"
 
 using namespace tetris;
@@ -18,6 +29,7 @@ Tetris::Tetris() {
 
   scale = 20;
   level = 0;
+  events_toggle = 0;
 
   running = true;
 }
@@ -60,7 +72,7 @@ int Tetris::OnExecute() {
     OnLoop();
     OnRender();
   }
-
+  
   OnCleanup();
 
   return 0;
@@ -101,8 +113,6 @@ bool Tetris::OnInit() {
 	  std::cout << "Game over!" << std::endl;
 	  game_timer.enabled = false;
 	}
-	else {
-	}
       }
     }
     else {
@@ -116,6 +126,34 @@ bool Tetris::OnInit() {
 }
 
 void Tetris::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
+#ifdef DEBUG
+  std::cout << "Key released: " << mod << " + " << sym << " [" << unicode << "]" <<  std::endl;
+#endif
+
+  // Handle other keyboard events
+  if (sym == SDLK_LEFT) {
+    events_toggle &= ~0x1;
+  }
+
+  if (sym == SDLK_RIGHT) {
+    events_toggle &= ~0x2;
+  }
+
+  if (sym == SDLK_UP) {
+    events_toggle &= ~0x4;
+  }
+
+  if (sym == SDLK_DOWN) {
+    events_toggle &= ~0x8;
+  }
+
+  if (sym == SDLK_z) {
+    events_toggle &= ~0x10;
+  }
+
+  if (sym == SDLK_x) {
+    events_toggle &= ~0x20;
+  }
 }
 
 void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
@@ -130,40 +168,33 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
   }
 
   // Quit if we pressed ESC
-  switch(sym) {
-  case SDLK_ESCAPE: {
+  if (sym == SDLK_ESCAPE) {
     OnExit();
-    break;
   }
-  case SDLK_LEFT: {
-    if (play_field.current_tetrino != NULL)
-      play_field.current_tetrino->MoveLeft();
-    break;
+
+  // Handle other keyboard events
+  if (sym == SDLK_LEFT) {
+    events_toggle |= 0x1;
   }
-  case SDLK_RIGHT: {
-    if (play_field.current_tetrino != NULL)
-      play_field.current_tetrino->MoveRight();
-    break;
+
+  if (sym == SDLK_RIGHT) {
+    events_toggle |= 0x2;
   }
-  case SDLK_UP: {
-    if (play_field.current_tetrino != NULL)
-      play_field.current_tetrino->MoveUp();
-    break;
+
+  if (sym == SDLK_UP) {
+    events_toggle |= 0x4;
   }
-  case SDLK_DOWN: {
-    if (play_field.current_tetrino != NULL)
-      play_field.current_tetrino->MoveDown();
-    break;
+
+  if (sym == SDLK_DOWN) {
+    events_toggle |= 0x8;
   }
-  case SDLK_SPACE: {
-    play_field.DropCurrentTetrino();
-    break;
+
+  if (sym == SDLK_z) {
+    events_toggle |= 0x10;
   }
-  default: {
-    if (play_field.current_tetrino != NULL)
-      play_field.current_tetrino->RotateRight();
-    break;
-  }
+
+  if (sym == SDLK_x) {
+    events_toggle |= 0x20;
   }
 }
 
@@ -176,6 +207,56 @@ void Tetris::OnExit() {
 }
 
 void Tetris::OnLoop() {
+  // Handle other keyboard events
+  if (events_toggle & 0x1) { // move left
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->MoveLeft();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->MoveRight();
+    }
+  }
+
+  if (events_toggle & 0x2) { // move right
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->MoveRight();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->MoveLeft();
+    }
+  }
+
+  if (events_toggle & 0x4) { // move up
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->MoveUp();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->MoveDown();
+    }
+  }
+
+  if (events_toggle & 0x8) { // move down
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->MoveDown();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->MoveUp();
+    }
+  }
+
+  if (events_toggle & 0x10) { // rotate left
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->RotateRight();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->RotateLeft();
+    }
+  }
+
+  if (events_toggle & 0x20) { // rotate left
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->RotateLeft();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->RotateRight();
+    }
+  }
+
+
   game_timer.OnLoop();
   play_field.OnLoop();
 }

@@ -1,16 +1,6 @@
 #ifndef TETRIS_HPP
 #define TETRIS_HPP
 
-#if defined _WIN32 || defined __CYGWIN__
-#include <windows.h>
-#include "SDL.h"
-#else
-#include <SDL/SDL.h>
-#endif
-
-#include <GL/gl.h>
-#include <GL/glu.h>
-
 #include "RGBColor.hpp"
 #include "TEvent.hpp"
 #include "Tetrino.hpp"
@@ -28,8 +18,9 @@ class Tetris : public TEvent {
   int resolution_x;
   int resolution_y;
   bool fullscreen;   // true = fullscreen mode, false = windowed mode
-
   int scale;
+
+  int events_toggle;
 
   int level;
   TGameTimer game_timer;
