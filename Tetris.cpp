@@ -12,6 +12,8 @@
 
 #include "Tetris.hpp"
 
+#define GET_TIMER_RATE(l)  ((50 - (l)) * 20)
+
 using namespace tetris;
 
 Tetris::Tetris() {
@@ -27,9 +29,7 @@ Tetris::Tetris() {
   fullscreen = true;
 #endif
 
-  scale = 20;
   level = 0;
-  events_toggle = 0;
 
   running = true;
 }
@@ -99,8 +99,6 @@ bool Tetris::OnInit() {
   glEnable(GL_TEXTURE_2D);
   glLoadIdentity();
 
-  game_timer.SetCurrentLevel(0);
-
   // Register the callback function for the game events
   auto tetris_timer_events = [&] {
     Tetrino *curr = play_field.current_tetrino;
@@ -120,8 +118,12 @@ bool Tetris::OnInit() {
     }
   };
 
+  game_timer.timer_rate = GET_TIMER_RATE(level);
   game_timer.SetCallback(tetris_timer_events);
-  
+  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
+  play_field.SpawnTetrino();
+
   return true;
 }
 
@@ -129,31 +131,6 @@ void Tetris::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
 #ifdef DEBUG
   std::cout << "Key released: " << mod << " + " << sym << " [" << unicode << "]" <<  std::endl;
 #endif
-
-  // Handle other keyboard events
-  if (sym == SDLK_LEFT) {
-    events_toggle &= ~0x1;
-  }
-
-  if (sym == SDLK_RIGHT) {
-    events_toggle &= ~0x2;
-  }
-
-  if (sym == SDLK_UP) {
-    events_toggle &= ~0x4;
-  }
-
-  if (sym == SDLK_DOWN) {
-    events_toggle &= ~0x8;
-  }
-
-  if (sym == SDLK_z) {
-    events_toggle &= ~0x10;
-  }
-
-  if (sym == SDLK_x) {
-    events_toggle &= ~0x20;
-  }
 }
 
 void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
@@ -172,29 +149,58 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     OnExit();
   }
 
-  // Handle other keyboard events
-  if (sym == SDLK_LEFT) {
-    events_toggle |= 0x1;
+  if (sym == SDLK_LEFT) { // move left
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->MoveLeft();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->MoveRight();
+    }
   }
 
-  if (sym == SDLK_RIGHT) {
-    events_toggle |= 0x2;
+  if (sym == SDLK_RIGHT) { // move right
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->MoveRight();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->MoveLeft();
+    }
   }
 
-  if (sym == SDLK_UP) {
-    events_toggle |= 0x4;
+  if (sym == SDLK_DOWN) { // move down
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->MoveDown();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino)) {
+	play_field.current_tetrino->MoveUp();
+      }
+    }
   }
 
-  if (sym == SDLK_DOWN) {
-    events_toggle |= 0x8;
+  if (sym == SDLK_z) { // rotate left
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->RotateLeft();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->RotateRight();
+    }
   }
 
-  if (sym == SDLK_z) {
-    events_toggle |= 0x10;
+  if (sym == SDLK_x) { // rotate right
+    if (play_field.current_tetrino != NULL) {
+      play_field.current_tetrino->RotateRight();
+      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	play_field.current_tetrino->RotateLeft();
+    }
   }
-
-  if (sym == SDLK_x) {
-    events_toggle |= 0x20;
+  
+  if (sym == SDLK_UP) { // drop instantly
+    if (play_field.current_tetrino != NULL) {
+      do
+	play_field.current_tetrino->MoveDown();
+      while (!play_field.CheckIfIntersect(play_field.current_tetrino));
+      
+      play_field.current_tetrino->MoveUp();
+      play_field.DropCurrentTetrino();
+      play_field.SpawnTetrino();
+      game_timer.ResetTimer();
+    }
   }
 }
 
@@ -207,56 +213,6 @@ void Tetris::OnExit() {
 }
 
 void Tetris::OnLoop() {
-  // Handle other keyboard events
-  if (events_toggle & 0x1) { // move left
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->MoveLeft();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
-	play_field.current_tetrino->MoveRight();
-    }
-  }
-
-  if (events_toggle & 0x2) { // move right
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->MoveRight();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
-	play_field.current_tetrino->MoveLeft();
-    }
-  }
-
-  if (events_toggle & 0x4) { // move up
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->MoveUp();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
-	play_field.current_tetrino->MoveDown();
-    }
-  }
-
-  if (events_toggle & 0x8) { // move down
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->MoveDown();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
-	play_field.current_tetrino->MoveUp();
-    }
-  }
-
-  if (events_toggle & 0x10) { // rotate left
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->RotateRight();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
-	play_field.current_tetrino->RotateLeft();
-    }
-  }
-
-  if (events_toggle & 0x20) { // rotate left
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->RotateLeft();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
-	play_field.current_tetrino->RotateRight();
-    }
-  }
-
-
   game_timer.OnLoop();
   play_field.OnLoop();
 }

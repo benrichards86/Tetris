@@ -7,11 +7,7 @@
 #include <functional>
 #include "TGameTimer.hpp"
 
-#define GET_TIMER_RATE(l)  ((50 - (l)) * 20)
-
 TGameTimer::TGameTimer() {
-  level = 0;
-  timer_rate = GET_TIMER_RATE(0);
   old_time = 0;
   enabled = true;
   callback_func = NULL;
@@ -20,22 +16,17 @@ TGameTimer::TGameTimer() {
 TGameTimer::~TGameTimer() {
 }
 
-void TGameTimer::SetCurrentLevel(int curr_level) {
-  level = curr_level;
-  timer_rate = GET_TIMER_RATE(level);
-}
-
-int TGameTimer::GetCurrentLevel() {
-  return level;
-}
-
 void TGameTimer::SetCallback(std::function<void()> func) {
   callback_func = func;
 }
 
+void TGameTimer::ResetTimer() {
+  old_time = SDL_GetTicks();
+}
+
 void TGameTimer::OnLoop() {
   if (enabled) {
-    if (old_time + timer_rate > SDL_GetTicks())
+    if (SDL_GetTicks() < old_time + timer_rate)
       return;
     
     old_time = SDL_GetTicks();

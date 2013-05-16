@@ -18,11 +18,9 @@ class Tetris : public TEvent {
   int resolution_x;
   int resolution_y;
   bool fullscreen;   // true = fullscreen mode, false = windowed mode
-  int scale;
-
-  int events_toggle;
 
   int level;
+
   TGameTimer game_timer;
 
  public:
