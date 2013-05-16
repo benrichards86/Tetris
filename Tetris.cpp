@@ -32,6 +32,7 @@ Tetris::Tetris() {
   level = 0;
 
   running = true;
+  game_over = false;
 }
 
 bool Tetris::SetDisplayMode(int res_x, int res_y, int bpp, bool fullscreen_mode) {
@@ -106,11 +107,7 @@ bool Tetris::OnInit() {
       curr->MoveDown();
       if (play_field.CheckIfIntersect(play_field.current_tetrino)) {
 	curr->MoveUp();
-	if (!play_field.DropCurrentTetrino()) {
-	  // game over
-	  std::cout << "Game over!" << std::endl;
-	  game_timer.enabled = false;
-	}
+	if (!play_field.DropCurrentTetrino()) GameOver();
       }
     }
     else {
@@ -149,57 +146,65 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
     OnExit();
   }
 
-  if (sym == SDLK_LEFT) { // move left
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->MoveLeft();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
-	play_field.current_tetrino->MoveRight();
-    }
-  }
-
-  if (sym == SDLK_RIGHT) { // move right
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->MoveRight();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
+  if (!game_over) {
+    if (sym == SDLK_LEFT) { // move left
+      if (play_field.current_tetrino != NULL) {
 	play_field.current_tetrino->MoveLeft();
-    }
-  }
-
-  if (sym == SDLK_DOWN) { // move down
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->MoveDown();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino)) {
-	play_field.current_tetrino->MoveUp();
+	if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	  play_field.current_tetrino->MoveRight();
       }
     }
-  }
 
-  if (sym == SDLK_z) { // rotate left
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->RotateLeft();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
-	play_field.current_tetrino->RotateRight();
+    if (sym == SDLK_RIGHT) { // move right
+      if (play_field.current_tetrino != NULL) {
+	play_field.current_tetrino->MoveRight();
+	if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	  play_field.current_tetrino->MoveLeft();
+      }
     }
-  }
 
-  if (sym == SDLK_x) { // rotate right
-    if (play_field.current_tetrino != NULL) {
-      play_field.current_tetrino->RotateRight();
-      if (play_field.CheckIfIntersect(play_field.current_tetrino))
-	play_field.current_tetrino->RotateLeft();
-    }
-  }
-  
-  if (sym == SDLK_UP) { // drop instantly
-    if (play_field.current_tetrino != NULL) {
-      do
+    if (sym == SDLK_DOWN) { // move down
+      if (play_field.current_tetrino != NULL) {
 	play_field.current_tetrino->MoveDown();
-      while (!play_field.CheckIfIntersect(play_field.current_tetrino));
+	if (play_field.CheckIfIntersect(play_field.current_tetrino)) {
+	  play_field.current_tetrino->MoveUp();
+	}
+      }
+    }
+
+    if (sym == SDLK_z) { // rotate left
+      if (play_field.current_tetrino != NULL) {
+	play_field.current_tetrino->RotateLeft();
+	if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	  play_field.current_tetrino->RotateRight();
+      }
+    }
+
+    if (sym == SDLK_x) { // rotate right
+      if (play_field.current_tetrino != NULL) {
+	play_field.current_tetrino->RotateRight();
+	if (play_field.CheckIfIntersect(play_field.current_tetrino))
+	  play_field.current_tetrino->RotateLeft();
+      }
+    }
+  
+    if (sym == SDLK_UP) { // drop instantly
+      if (play_field.current_tetrino != NULL) {
+	if (!play_field.CheckIfIntersect(play_field.current_tetrino)) {
+	  do
+	    play_field.current_tetrino->MoveDown();
+	  while (!play_field.CheckIfIntersect(play_field.current_tetrino));
       
-      play_field.current_tetrino->MoveUp();
-      play_field.DropCurrentTetrino();
-      play_field.SpawnTetrino();
-      game_timer.ResetTimer();
+	  play_field.current_tetrino->MoveUp();
+	}
+	if (!play_field.DropCurrentTetrino()) {
+	  GameOver();
+	}
+	else {
+	  play_field.SpawnTetrino();
+	  game_timer.ResetTimer();
+	}
+      }
     }
   }
 }
@@ -231,6 +236,13 @@ void Tetris::OnCleanup() {
 
   SDL_FreeSurface(surf_display);
   SDL_Quit();
+}
+
+void Tetris::GameOver() {
+  // game over
+  std::cout << "Game over!" << std::endl;
+  game_timer.enabled = false;
+  game_over = true;
 }
 
 #ifndef _WIN32
