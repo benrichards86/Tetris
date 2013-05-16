@@ -36,10 +36,10 @@ bool TField::Add(Tetrino *t) {
       curr->row +=  t->row;
       curr->column += t->column;
       if (curr->row >= 0 && curr->row < FIELD_HEIGHT && curr->column >= 0 && curr->column < FIELD_WIDTH) {
-	field_cells.push_back(curr);
-	field[curr->row][curr->column] = curr;
+        field_cells.push_back(curr);
+        field[curr->row][curr->column] = curr;
 #ifdef DEBUG
-	std::cout << "Dropping cell at row:" << curr->row << ", column:" << curr->column << std::endl;
+        std::cout << "Dropping cell at row:" << curr->row << ", column:" << curr->column << std::endl;
 #endif
       }
     }
@@ -64,7 +64,7 @@ bool TField::CheckIfIntersect(Tetrino *t) {
     int column = t->column + curr->column;
     if (row >= 0 && row < FIELD_HEIGHT && column >= 0 && column < FIELD_WIDTH) {
       if (field[row][column] != NULL)
-	return true;
+        return true;
     }
     else {
       return true;
@@ -116,21 +116,21 @@ void TField::OnRender() {
   for (int r = 0; r < FIELD_HEIGHT; r++) {
     for (int c = 0; c < FIELD_WIDTH; c++) {
       if (field[r][c] != NULL)
-	field[r][c]->OnRender();
+        field[r][c]->OnRender();
 #ifdef DEBUG
       else {
-	glColor3ub(127, 127, 127);
-	glPushMatrix();
-	glLineStipple(2, 0xAAAA);
-	glEnable(GL_LINE_STIPPLE);
-	glBegin(GL_LINE_LOOP);
-	glVertex3i(20 * c - 40, 20 * r - 40, 0);
-	glVertex3i(20 * c - 20, 20 * r - 40, 0);
-	glVertex3i(20 * c - 20, 20 * r - 20, 0);
-	glVertex3i(20 * c - 40, 20 * r - 20, 0);
-	glEnd();
-	glDisable(GL_LINE_STIPPLE);
-	glPopMatrix();
+        glColor3ub(127, 127, 127);
+        glPushMatrix();
+        glLineStipple(2, 0xAAAA);
+        glEnable(GL_LINE_STIPPLE);
+        glBegin(GL_LINE_LOOP);
+        glVertex3i(20 * c - 40, 20 * r - 40, 0);
+        glVertex3i(20 * c - 20, 20 * r - 40, 0);
+        glVertex3i(20 * c - 20, 20 * r - 20, 0);
+        glVertex3i(20 * c - 40, 20 * r - 20, 0);
+        glEnd();
+        glDisable(GL_LINE_STIPPLE);
+        glPopMatrix();
       }
 #endif
     }

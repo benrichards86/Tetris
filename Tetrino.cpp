@@ -24,9 +24,9 @@ bool Tetrino::LoadCells(unsigned int cells, RGBColor color_value) {
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
       if ((cells >> (j * 4 + i)) & 1) {
-	TCell *t = new TCell();
-	if (t->OnLoad(i, j, color))
-	  vec_rep.push_back(t);
+        TCell *t = new TCell();
+        if (t->OnLoad(i, j, color))
+          vec_rep.push_back(t);
       }
     }
   }
