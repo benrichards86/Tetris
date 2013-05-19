@@ -4,12 +4,13 @@
 #include <vector>
 #include "Tetrino.hpp"
 #include "TCell.hpp"
+#include "TField.hpp"
 
 using namespace tetris;
 
 Tetrino::Tetrino() {
   row = 0;
-  column = 10;
+  column = FIELD_WIDTH / 2 + 2;
   cell_mask = 0xffff;
 }
 

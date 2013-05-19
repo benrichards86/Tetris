@@ -7,8 +7,8 @@
 #include "Tetrino.hpp"
 #include "TCell.hpp"
 
-#define FIELD_WIDTH 20
-#define FIELD_HEIGHT 32
+#define FIELD_WIDTH 16
+#define FIELD_HEIGHT 24
 
 namespace tetris {
 

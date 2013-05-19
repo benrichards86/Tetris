@@ -107,7 +107,10 @@ bool Tetris::OnInit() {
       curr->MoveDown();
       if (play_field.CheckIfIntersect(play_field.current_tetrino)) {
         curr->MoveUp();
-        if (!play_field.DropCurrentTetrino()) GameOver();
+        if (!play_field.DropCurrentTetrino())
+	  GameOver();
+	else
+	  play_field.SpawnTetrino();
       }
     }
     else {

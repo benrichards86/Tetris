@@ -100,6 +100,44 @@ void TField::OnLoop() {
   if (current_tetrino != NULL) {
     current_tetrino->OnLoop();
   }
+
+  // Check for full rows and delete any that are found
+  std::vector<int> deleted_rows;
+  for (int r = FIELD_HEIGHT - 1; r >= 0; r--) {
+    bool row_full = true;
+    for (int c = 0; c < FIELD_WIDTH; c++) {
+      row_full = row_full && (field[r][c] != NULL);
+    }
+
+    if (row_full) {
+      for (int c = 0; c < FIELD_WIDTH; c++) {
+	delete field[r][c];
+	field[r][c] = NULL;
+      }
+
+      deleted_rows.push_back(r);
+    }
+  }
+
+  for (int del_row_num = 0; del_row_num < deleted_rows.size(); del_row_num++) {
+#ifdef DEBUG
+    std::cout << "Deleted row: " << deleted_rows[del_row_num] << std::endl;
+#endif
+    int r = deleted_rows[del_row_num];
+    while(r >= 0 && (del_row_num + 1 == deleted_rows.size() || r > deleted_rows[del_row_num + 1])) {
+#ifdef DEBUG
+      std::cout << "Shifting row: " << r << " by " << del_row_num + 1 << " rows." << std::endl;
+#endif
+      for (int c = 0; c < FIELD_WIDTH; c++) {
+	if (field[r][c] != NULL) {
+	  field[r][c]->row += del_row_num + 1;
+	  field[r + del_row_num + 1][c] = field[r][c];
+	  field[r][c] = NULL;
+	}
+      }
+      r--;
+    }
+  }
 }
 
 void TField::OnRender() {
