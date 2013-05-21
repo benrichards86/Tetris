@@ -111,8 +111,8 @@ void TField::OnLoop() {
 
     if (row_full) {
       for (int c = 0; c < FIELD_WIDTH; c++) {
-	delete field[r][c];
-	field[r][c] = NULL;
+        delete field[r][c];
+        field[r][c] = NULL;
       }
 
       deleted_rows.push_back(r);
@@ -129,11 +129,11 @@ void TField::OnLoop() {
       std::cout << "Shifting row: " << r << " by " << del_row_num + 1 << " rows." << std::endl;
 #endif
       for (int c = 0; c < FIELD_WIDTH; c++) {
-	if (field[r][c] != NULL) {
-	  field[r][c]->row += del_row_num + 1;
-	  field[r + del_row_num + 1][c] = field[r][c];
-	  field[r][c] = NULL;
-	}
+        if (field[r][c] != NULL) {
+          field[r][c]->row += del_row_num + 1;
+          field[r + del_row_num + 1][c] = field[r][c];
+          field[r][c] = NULL;
+        }
       }
       r--;
     }
