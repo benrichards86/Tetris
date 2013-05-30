@@ -109,16 +109,15 @@ void TField::OnLoop() {
       row_full = row_full && (field[r][c] != NULL);
     }
 
-    if (row_full) {
-      for (int c = 0; c < FIELD_WIDTH; c++) {
-        delete field[r][c];
-        field[r][c] = NULL;
-      }
-
+    // Mark full row as to delete
+    if (row_full)
       deleted_rows.push_back(r);
-    }
+
   }
 
+  // Now, delete rows and shift blocks above deleted rows. Does it in one pass.
+  // If on row to delete, delete it.
+  // Else, shift blocks in row down by the number of rows we've deleted so far.
   for (int del_row_num = 0; del_row_num < deleted_rows.size(); del_row_num++) {
 #ifdef DEBUG
     std::cout << "Deleted row: " << deleted_rows[del_row_num] << std::endl;
@@ -128,16 +127,25 @@ void TField::OnLoop() {
 #ifdef DEBUG
       std::cout << "Shifting row: " << r << " by " << del_row_num + 1 << " rows." << std::endl;
 #endif
-      for (int c = 0; c < FIELD_WIDTH; c++) {
-        if (field[r][c] != NULL) {
-          field[r][c]->row += del_row_num + 1;
-          field[r + del_row_num + 1][c] = field[r][c];
+      if (r == deleted_rows[del_row_num]) {
+        for (int c = 0; c < FIELD_WIDTH; c++) {
+          delete field[r][c];
           field[r][c] = NULL;
+        }
+      }
+      else {
+        for (int c = 0; c < FIELD_WIDTH; c++) {
+          if (field[r][c] != NULL) {
+            field[r][c]->row += del_row_num + 1;
+            field[r + del_row_num + 1][c] = field[r][c];
+            field[r][c] = NULL;
+          }
         }
       }
       r--;
     }
   }
+
 }
 
 void TField::OnRender() {
