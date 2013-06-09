@@ -20,6 +20,7 @@ class Tetris : public TEvent {
   bool fullscreen;   // true = fullscreen mode, false = windowed mode
 
   int level;
+  int score;
 
   bool game_over;
 

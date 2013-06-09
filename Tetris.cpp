@@ -30,6 +30,7 @@ Tetris::Tetris() {
 #endif
 
   level = 0;
+  score = 0;
 
   running = true;
   game_over = false;
@@ -200,6 +201,7 @@ void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
       
           play_field.current_tetrino->MoveUp();
         }
+        
         if (!play_field.DropCurrentTetrino()) {
           GameOver();
         }
