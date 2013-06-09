@@ -18,8 +18,9 @@ TField::TField() {
     for (int c = 0; c < FIELD_WIDTH; c++)
       field[r][c] = NULL;
 
-
   srand(time(NULL));
+  next_tetrino = new Tetrino;
+  next_tetrino->OnLoad(rand() % 7);
 }
 
 TField::~TField() {
@@ -76,10 +77,14 @@ bool TField::CheckIfIntersect(Tetrino *t) {
 
 // Spawn a new tetrino
 void TField::SpawnTetrino() {
-  current_tetrino = new Tetrino;
-  current_tetrino->OnLoad(rand() % 7);
+  current_tetrino = next_tetrino;
   current_tetrino->row = 0;
   current_tetrino->column = (int)(FIELD_WIDTH / 2) - 2;
+
+  next_tetrino = new Tetrino;
+  next_tetrino->OnLoad(rand() % 7);
+  next_tetrino->row = 0;
+  next_tetrino->column = 0;
 }
 
 // Drops a tetrino in place into the field
@@ -184,6 +189,13 @@ void TField::OnRender() {
   
   if (current_tetrino != NULL)
     current_tetrino->OnRender();
+
+  if (next_tetrino != NULL) {
+    glPushMatrix();
+    glTranslated(600, 0, 0);
+    next_tetrino->OnRender();
+    glPopMatrix();
+  }
 
   glPopMatrix();
 }

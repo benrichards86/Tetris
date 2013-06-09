@@ -34,6 +34,7 @@ private:
 
 public:
   Tetrino *current_tetrino;
+  Tetrino *next_tetrino;
   int x;
   int y;
 
