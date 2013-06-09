@@ -192,7 +192,7 @@ void TField::OnRender() {
 
   if (next_tetrino != NULL) {
     glPushMatrix();
-    glTranslated(600, 0, 0);
+    glTranslated(500, 80, 0);
     next_tetrino->OnRender();
     glPopMatrix();
   }
