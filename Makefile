@@ -1,11 +1,13 @@
 ifeq ($(OS),Windows_NT)
   CC = i686-pc-mingw32-g++
-  PLATFORM_LIBS = -mno-cygwin -mwindows
+#  PLATFORM_LIBS = -mno-cygwin -mwindows
+  PLATFORM_LIBS = -mwindows
   OPENGL_LIBS = -lopengl32
   SDL_INCLUDES = -I/usr/local/include/SDL -I/usr/include/mingw
   ZIP = 7z
   ZIPFLAGS = a -tzip
-  CFLAGS = -mno-cygwin
+#  CFLAGS = -mno-cygwin
+  CFLAGS =
 else
   OPENGL_LIBS = -lgl -lglu
 endif
