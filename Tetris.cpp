@@ -4,7 +4,11 @@
 #include <windows.h>
 #include "SDL.h"
 #else
+#ifdef SDL2
+#include <SDL2/SDL.h>
+#else
 #include <SDL/SDL.h>
+#endif
 #endif
 
 #include <GL/gl.h>
