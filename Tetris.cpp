@@ -1,15 +1,10 @@
 #include <iostream>
 
-#if defined _WIN32 || defined __CYGWIN__
+#ifdef _WIN32
 #include <windows.h>
-#include "SDL.h"
-#else
-#ifdef SDL2
-#include <SDL2/SDL.h>
-#else
-#include <SDL/SDL.h>
 #endif
-#endif
+
+#include <SDL.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -21,7 +16,8 @@
 using namespace tetris;
 
 Tetris::Tetris() {
-  surf_display = NULL;
+  window = NULL;
+  context = NULL;
 
 #if 1
   resolution_x = 1024;
@@ -48,12 +44,27 @@ bool Tetris::SetDisplayMode(int res_x, int res_y, int bpp, bool fullscreen_mode)
   fullscreen = fullscreen_mode;
 
   if (fullscreen_mode)
-    surf_display = SDL_SetVideoMode(0, 0, bpp, SDL_HWSURFACE | SDL_OPENGL | SDL_FULLSCREEN);
+    window = SDL_CreateWindow("Tetris Clone",
+                              SDL_WINDOWPOS_UNDEFINED,
+                              SDL_WINDOWPOS_UNDEFINED,
+                              0, 0,
+                              SDL_WINDOW_FULLSCREEN_DESKTOP | SDL_WINDOW_OPENGL);
   else 
-    surf_display = SDL_SetVideoMode(resolution_x, resolution_y, bpp, SDL_HWSURFACE | SDL_OPENGL);
+    window = SDL_CreateWindow("Tetris Clone",
+                              SDL_WINDOWPOS_UNDEFINED,
+                              SDL_WINDOWPOS_UNDEFINED,
+                              resolution_x, resolution_y,
+                              SDL_WINDOW_OPENGL);
+
+  if (window == NULL) {
+    std::cerr << "Error switching " << (fullscreen_mode ? "into" : "out of") << " full screen mode! Couldn't create window!" << std::endl;
+    return false;
+  }
+
+  context = SDL_GL_CreateContext(window);
      
-  if (surf_display == NULL) {
-    std::cerr << "Error switching " << (fullscreen_mode ? "into" : "out of") << " full screen mode!" << std::endl;
+  if (context == NULL) {
+    std::cerr << "Error switching " << (fullscreen_mode ? "into" : "out of") << " full screen mode! Couldn't create OpenGL context!" << std::endl;
     return false;
   }
 
@@ -63,10 +74,10 @@ bool Tetris::SetDisplayMode(int res_x, int res_y, int bpp, bool fullscreen_mode)
 }
 
 int Tetris::OnExecute() {
-  if (OnInit() == false)
+  if (OnInit() == false) {
+    std::cerr << "Error initializing Tetris!" << std::endl;
     return -1;
-
-  SDL_WM_SetCaption("Tetris Clone", 0); 
+  }
 
   SDL_Event event;
 
@@ -85,7 +96,8 @@ int Tetris::OnExecute() {
 }
 
 bool Tetris::OnInit() {
-  if (SDL_Init(SDL_INIT_EVERYTHING) < 0) {
+  if (SDL_Init(SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_EVENTS) < 0) {
+    std::cerr << "Failure in SDL_Init: " << SDL_GetError() << std::endl;
     return false;
   }
 
@@ -125,27 +137,28 @@ bool Tetris::OnInit() {
 
   game_timer.timer_rate = GET_TIMER_RATE(level);
   game_timer.SetCallback(tetris_timer_events);
-  SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+  //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
   play_field.SpawnTetrino();
 
   return true;
 }
 
-void Tetris::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
+void Tetris::OnKeyUp(SDL_Keycode sym, Uint16 mod) {
 #ifdef DEBUG
-  std::cout << "Key released: " << mod << " + " << sym << " [" << unicode << "]" <<  std::endl;
+  std::cout << "Key released: " << mod << " + " << sym << std::endl;
 #endif
 }
 
-void Tetris::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
+void Tetris::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
 #ifdef DEBUG
-  std::cout << "Key pressed: " << mod << " + " << sym << " [" << unicode << "]" <<  std::endl;
+  std::cout << "Key pressed: " << mod << " + " << sym <<  std::endl;
 #endif
 
   // Alt+Enter to switch between fullscreen & windowed mode
   if ((mod == KMOD_LALT || mod == KMOD_RALT) && sym == SDLK_RETURN) {
-    if (!SetDisplayMode(resolution_x, resolution_y, 32, !fullscreen))
+    fullscreen = !fullscreen;
+    if ( SDL_SetWindowFullscreen(window, (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0)) )
       OnExit();
   }
 
@@ -237,13 +250,12 @@ void Tetris::OnRender() {
 
   play_field.OnRender();
 
-  SDL_GL_SwapBuffers();
+  SDL_GL_SwapWindow(window);
 }
 
 void Tetris::OnCleanup() {
   play_field.OnCleanup();
 
-  SDL_FreeSurface(surf_display);
   SDL_Quit();
 }
 
@@ -254,18 +266,7 @@ void Tetris::GameOver() {
   game_over = true;
 }
 
-#ifndef _WIN32
 int main(int argc, char** argv) {
   Tetris game;
   return game.OnExecute();
 }
-#else
-int WinMain(HINSTANCE__* hInstance, HINSTANCE__* hPrevInstance, char* lpCmdLine, int nCmdShow) {
-#ifdef DEBUG
-  std::cout << lpCmdLine << ", " << nCmdShow << std::endl;
-#endif
-  Tetris game;
-  return game.OnExecute();
-}
-#endif
-

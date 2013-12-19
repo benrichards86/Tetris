@@ -11,42 +11,48 @@ TEvent::~TEvent() {
  
 void TEvent::OnEvent(SDL_Event* Event) {
   switch(Event->type) {
+    /*
+  // This is carried over from SDL 1.2. Haven't figured out the port, yet.
   case SDL_ACTIVEEVENT: {
     switch(Event->active.state) {
     case SDL_APPMOUSEFOCUS: {
-      if ( Event->active.gain )    OnMouseFocus();
-      else                OnMouseBlur();
- 
+      if ( Event->active.gain )
+          OnMouseFocus();
+      else
+          OnMouseBlur();
       break;
     }
     case SDL_APPINPUTFOCUS: {
-      if ( Event->active.gain )    OnInputFocus();
-      else                OnInputBlur();
- 
+      if ( Event->active.gain )
+          OnInputFocus();
+      else
+          OnInputBlur();
       break;
     }
     case SDL_APPACTIVE:    {
-      if ( Event->active.gain )    OnRestore();
-      else                OnMinimize();
- 
+      if ( Event->active.gain )
+          OnRestore();
+      else
+          OnMinimize();
       break;
     }
     }
     break;
   }
+    */
  
   case SDL_KEYDOWN: {
-    OnKeyDown(Event->key.keysym.sym,Event->key.keysym.mod,Event->key.keysym.unicode);
+    OnKeyDown(Event->key.keysym.sym, Event->key.keysym.mod);
     break;
   }
  
   case SDL_KEYUP: {
-    OnKeyUp(Event->key.keysym.sym,Event->key.keysym.mod,Event->key.keysym.unicode);
+    OnKeyUp(Event->key.keysym.sym, Event->key.keysym.mod);
     break;
   }
  
   case SDL_MOUSEMOTION: {
-    OnMouseMove(Event->motion.x,Event->motion.y,Event->motion.xrel,Event->motion.yrel,(Event->motion.state&SDL_BUTTON(SDL_BUTTON_LEFT))!=0,(Event->motion.state&SDL_BUTTON(SDL_BUTTON_RIGHT))!=0,(Event->motion.state&SDL_BUTTON(SDL_BUTTON_MIDDLE))!=0);
+    OnMouseMove(Event->motion.x, Event->motion.y, Event->motion.xrel, Event->motion.yrel, (Event->motion.state & SDL_BUTTON(SDL_BUTTON_LEFT)) != 0,(Event->motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)) != 0, (Event->motion.state & SDL_BUTTON(SDL_BUTTON_MIDDLE)) != 0);
     break;
   }
  
@@ -71,15 +77,15 @@ void TEvent::OnEvent(SDL_Event* Event) {
   case SDL_MOUSEBUTTONUP:    {
     switch(Event->button.button) {
     case SDL_BUTTON_LEFT: {
-      OnLButtonUp(Event->button.x,Event->button.y);
+      OnLButtonUp(Event->button.x, Event->button.y);
       break;
     }
     case SDL_BUTTON_RIGHT: {
-      OnRButtonUp(Event->button.x,Event->button.y);
+      OnRButtonUp(Event->button.x, Event->button.y);
       break;
     }
     case SDL_BUTTON_MIDDLE: {
-      OnMButtonUp(Event->button.x,Event->button.y);
+      OnMButtonUp(Event->button.x, Event->button.y);
       break;
     }
     }
@@ -87,26 +93,26 @@ void TEvent::OnEvent(SDL_Event* Event) {
   }
  
   case SDL_JOYAXISMOTION: {
-    OnJoyAxis(Event->jaxis.which,Event->jaxis.axis,Event->jaxis.value);
+    OnJoyAxis(Event->jaxis.which, Event->jaxis.axis, Event->jaxis.value);
     break;
   }
  
   case SDL_JOYBALLMOTION: {
-    OnJoyBall(Event->jball.which,Event->jball.ball,Event->jball.xrel,Event->jball.yrel);
+    OnJoyBall(Event->jball.which, Event->jball.ball, Event->jball.xrel,Event->jball.yrel);
     break;
   }
  
   case SDL_JOYHATMOTION: {
-    OnJoyHat(Event->jhat.which,Event->jhat.hat,Event->jhat.value);
+    OnJoyHat(Event->jhat.which, Event->jhat.hat, Event->jhat.value);
     break;
   }
   case SDL_JOYBUTTONDOWN: {
-    OnJoyButtonDown(Event->jbutton.which,Event->jbutton.button);
+    OnJoyButtonDown(Event->jbutton.which, Event->jbutton.button);
     break;
   }
  
   case SDL_JOYBUTTONUP: {
-    OnJoyButtonUp(Event->jbutton.which,Event->jbutton.button);
+    OnJoyButtonUp(Event->jbutton.which, Event->jbutton.button);
     break;
   }
  
@@ -119,7 +125,9 @@ void TEvent::OnEvent(SDL_Event* Event) {
     //Ignore
     break;
   }
- 
+
+    /*
+  // From SDL 1.2. Haven't figured out the port yet. 
   case SDL_VIDEORESIZE: {
     OnResize(Event->resize.w,Event->resize.h);
     break;
@@ -129,9 +137,10 @@ void TEvent::OnEvent(SDL_Event* Event) {
     OnExpose();
     break;
   }
+    */
  
   default: {
-    OnUser(Event->user.type,Event->user.code,Event->user.data1,Event->user.data2);
+    OnUser(Event->user.type, Event->user.code, Event->user.data1, Event->user.data2);
     break;
   }
   }
@@ -145,11 +154,11 @@ void TEvent::OnInputBlur() {
   //Pure virtual, do nothing
 }
  
-void TEvent::OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode) {
+void TEvent::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
   //Pure virtual, do nothing
 }
  
-void TEvent::OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode) {
+void TEvent::OnKeyUp(SDL_Keycode sym, Uint16 mod) {
   //Pure virtual, do nothing
 }
  
@@ -161,7 +170,7 @@ void TEvent::OnMouseBlur() {
   //Pure virtual, do nothing
 }
  
-void TEvent::OnMouseMove(int mX, int mY, int relX, int relY, bool Left,bool Right,bool Middle) {
+void TEvent::OnMouseMove(int mX, int mY, int relX, int relY, bool Left, bool Right, bool Middle) {
   //Pure virtual, do nothing
 }
  
@@ -221,7 +230,7 @@ void TEvent::OnRestore() {
   //Pure virtual, do nothing
 }
  
-void TEvent::OnResize(int w,int h) {
+void TEvent::OnResize(int w, int h) {
   //Pure virtual, do nothing
 }
  

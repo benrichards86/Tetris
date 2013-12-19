@@ -1,15 +1,7 @@
 #ifndef TEVENT_HPP
 #define TEVENT_HPP
 
-#ifdef _WIN32
-#include "SDL.h"
-#else
-#ifdef SDL2
-#include <SDL2/SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
-#endif
+#include <SDL.h>
 
 namespace tetris {
 
@@ -21,8 +13,8 @@ class TEvent {
   virtual void OnEvent(SDL_Event* Event);
   virtual void OnInputFocus();
   virtual void OnInputBlur();
-  virtual void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
-  virtual void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);
+  virtual void OnKeyDown(SDL_Keycode sym, Uint16 mod);
+  virtual void OnKeyUp(SDL_Keycode sym, Uint16 mod);
   virtual void OnMouseFocus();
   virtual void OnMouseBlur();
   virtual void OnMouseMove(int mX, int mY, int relX, int relY, bool Left,bool Right,bool Middle);

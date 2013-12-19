@@ -1,26 +1,21 @@
 ifeq ($(OS),Windows_NT)
-  CC = i686-pc-mingw32-g++
-  PLATFORM_LIBS = -mwindows
+  CC = g++
+  SDL_DLL = SDL2.dll
+  SDL_INCLUDES = -I/usr/local/include/SDL2 -I/usr/include/mingw -Dmain=SDL_main
+  SDL_LIBS = -L/usr/local/lib -lcygwin -lSDL2main -lSDL2 -mwindows
   OPENGL_LIBS = -lopengl32
   ZIP = 7z
   ZIPFLAGS = a -tzip
+  MAINFUNC = WinMain
 else
   OPENGL_LIBS = -lgl -lglu
+  MAINFUNC = SDL_main
+  MAIN_LIB = -lSDL2main
 endif
 
-ifdef SDL2
-  SDL_INCLUDES = -I/usr/local/include/SDL2 -I/usr/include/mingw
-  SDL_LIBS = -L/usr/local/lib -lmingw32 -lSDL2
-  SDL_DLL = SDL2.dll
-  CFLAGS := $(CFLAGS) -DSDL2
-else
-  SDL_INCLUDES = -I/usr/local/include/SDL -I/usr/include/mingw
-  SDL_LIBS = -L/usr/local/lib -lmingw32 -lSDL
-  SDL_DLL = SDL.dll
-endif
 DEBUGFLAGS = -g -DDEBUG
 RELEASEFLAGS = -O3
-LDFLAGS = $(PLATFORM_LIBS) $(SDL_LIBS) $(OPENGL_LIBS)
+LDFLAGS = $(SDL_LIBS) $(OPENGL_LIBS)
 INCLUDES = $(SDL_INCLUDES)
 SOURCES = Tetris.cpp TEvent.cpp Tetrino.cpp TField.cpp TCell.cpp RGBColor.cpp TGameTimer.cpp
 HEADERS = Tetris.hpp TEvent.hpp Tetrino.hpp TField.hpp TCell.hpp RGBColor.hpp TGameTimer.hpp
@@ -37,7 +32,7 @@ endif
 
 all: $(OBJECTS) tetris
 
-zip: tetris.exe SDL.dll
+zip: tetris.exe
 	$(ZIP) $(ZIPFLAGS) Tetris.zip tetris.exe $(SDL_DLL)
 
 $(OBJECTS): %.o: %.cpp %.hpp

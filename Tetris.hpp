@@ -12,7 +12,8 @@ namespace tetris {
 class Tetris : public TEvent {
  private:
   bool running;
-  SDL_Surface* surf_display;
+  SDL_Window* window;
+  SDL_GLContext context;
   TField play_field;
 
   int resolution_x;
@@ -37,8 +38,8 @@ class Tetris : public TEvent {
   void OnLoop();
   void OnRender();
   void OnCleanup();
-  void OnKeyUp(SDLKey sym, SDLMod mod, Uint16 unicode);
-  void OnKeyDown(SDLKey sym, SDLMod mod, Uint16 unicode);
+  void OnKeyUp(SDL_Keycode sym, Uint16 mod);
+  void OnKeyDown(SDL_Keycode sym, Uint16 mod);
 
 private:
   bool SetDisplayMode(int res_x, int res_y, int bpp, bool fullscreen_mode);

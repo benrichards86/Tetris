@@ -1,12 +1,4 @@
- #ifdef _WIN32
-#include "SDL.h"
-#else
-#ifdef SDL2
-#include <SDL2/SDL.h>
-#else
-#include <SDL/SDL.h>
-#endif
-#endif
+#include <SDL.h>
 
 #include <functional>
 #include "TGameTimer.hpp"
