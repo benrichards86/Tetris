@@ -48,7 +48,7 @@ run: tetris
 
 .PHONY:
 clean:
-	rm -f *.o tetris.exe tetris.exe.stackdump tetris.zip
+	rm -f *.o tetris.exe tetris.exe.stackdump tetris.zip *.log
 
 .PHONY:
 prune:

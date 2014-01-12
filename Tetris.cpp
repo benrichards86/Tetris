@@ -168,6 +168,17 @@ void Tetris::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
   }
 
   if (!game_over) {
+    // CONSOLE MODE >:D
+    if (sym == SDLK_BACKQUOTE) {
+      std::string input_cmd;
+      std::cout << "~ ";
+      std::cin >> input_cmd;
+
+      std::cout << "Entered: " << input_cmd << std::endl;
+    }
+
+    //
+
     if (sym == SDLK_LEFT) { // move left
       if (play_field.current_tetrino != NULL) {
         play_field.current_tetrino->MoveLeft();
