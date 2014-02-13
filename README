@@ -2,3 +2,8 @@ Tetris Clone
 Written by Benjamin Richards (c) 2013
 
 A Tetris clone utilizing SDL/OpenGL.
+
+Dependencies:
+OpenGL
+SDL2
+SDL2_ttf, Freetype
