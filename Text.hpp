@@ -8,6 +8,9 @@
 #include <GL/gl.h>
 #include <string>
 
+#include <SDL_ttf.h>
+#include <SDL_opengl.h>
+
 namespace tetris {
 
 class Text {

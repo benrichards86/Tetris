@@ -2,7 +2,7 @@ ifeq ($(OS),Windows_NT)
   CC = g++
   SDL_DLL = SDL2.dll
   SDL_INCLUDES = -I/usr/local/include/SDL2 -I/usr/include/mingw -Dmain=SDL_main
-  SDL_LIBS = -L/usr/local/lib -lcygwin -lSDL2main -lSDL2 -mwindows
+  SDL_LIBS = -L/usr/local/lib -lcygwin -lSDL2main -lSDL2 -mwindows -lfreetype -llibSDL2_ttf
   OPENGL_LIBS = -lopengl32
   ZIP = 7z
   ZIPFLAGS = a -tzip

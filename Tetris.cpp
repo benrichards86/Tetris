@@ -5,6 +5,7 @@
 #endif
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -12,6 +13,8 @@
 #include "Tetris.hpp"
 
 #define GET_TIMER_RATE(l)  ((50 - (l)) * 20)
+
+#define TTF_FONT "C:\\Windows\\Fonts\\BRLNSR.TTF"
 
 using namespace tetris;
 
@@ -104,6 +107,12 @@ bool Tetris::OnInit() {
   if (!SetDisplayMode(resolution_x, resolution_y, 32, fullscreen))
     return false;
 
+  // Initialize SDL TTF libs
+  if (TTF_Init() < 0) {
+    std::cerr << "Failure in TTF_Init: " << SDL_GetError() << std::endl;
+    return false;
+  }
+
   // OpenGL intitializations
   glClearColor(0, 0, 0, 0);
   glClearDepth(1.0f);
@@ -141,6 +150,9 @@ bool Tetris::OnInit() {
 
   play_field.SpawnTetrino();
 
+  font = TTF_OpenFont(TTF_FONT, 16);  
+  TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+
   return true;
 }
 
@@ -158,7 +170,7 @@ void Tetris::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
   // Alt+Enter to switch between fullscreen & windowed mode
   if ((mod == KMOD_LALT || mod == KMOD_RALT) && sym == SDLK_RETURN) {
     fullscreen = !fullscreen;
-    if ( SDL_SetWindowFullscreen(window, (fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0)) )
+    if ( SDL_SetWindowFullscreen(window, (fullscreen ? SDL_WINDOW_FULLSCREEN : 0)) )
       OnExit();
   }
 
@@ -260,6 +272,9 @@ void Tetris::OnRender() {
   glLoadIdentity();
 
   play_field.OnRender();
+
+  //SDL_Color white = { 0xFF, 0xFF, 0xFF, 0 };
+  //TTF_RenderText_Solid(font, "Test", white);
 
   SDL_GL_SwapWindow(window);
 }

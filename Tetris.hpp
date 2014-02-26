@@ -27,6 +27,8 @@ class Tetris : public TEvent {
 
   TGameTimer game_timer;
 
+  TTF_Font *font;
+
  public:
   Tetris();
   int OnExecute();
