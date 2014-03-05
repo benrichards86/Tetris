@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -17,6 +18,15 @@
 #define TTF_FONT "C:\\Windows\\Fonts\\BRLNSR.TTF"
 
 using namespace tetris;
+
+// Functions to interface with RGBColor class  
+void t_glColor3ubRGB(RGBColor color) {
+  glColor3ub(color.red, color.green, color.blue);
+}
+
+void t_glColor4ubRGB(RGBColor color, GLubyte alpha) {
+  glColor4ub(color.red, color.green, color.blue, alpha);
+}
 
 Tetris::Tetris() {
   window = NULL;
@@ -107,6 +117,8 @@ bool Tetris::OnInit() {
   if (!SetDisplayMode(resolution_x, resolution_y, 32, fullscreen))
     return false;
 
+  play_field.OnInit();
+
   // Initialize SDL TTF libs
   if (TTF_Init() < 0) {
     std::cerr << "Failure in TTF_Init: " << SDL_GetError() << std::endl;
@@ -184,9 +196,17 @@ void Tetris::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
     if (sym == SDLK_BACKQUOTE) {
       std::string input_cmd;
       std::cout << "~ ";
-      std::cin >> input_cmd;
-
-      std::cout << "Entered: " << input_cmd << std::endl;
+      std::getline(std::cin, input_cmd);
+      std::cout << input_cmd << std::endl;
+      if (input_cmd.compare("dump field") == 0) {
+        for (int r = 0; r < play_field.height; r++) {
+          std::cout << std::dec << std::setw(2) << r << ": ";
+          for (int c = 0; c < play_field.width; c++) {
+            std::cout << (play_field.field[r][c] != 0 ? 'x' : '0') << "  ";
+          }
+          std::cout << std::endl;
+        }
+      }
     }
 
     //
@@ -235,17 +255,21 @@ void Tetris::OnKeyDown(SDL_Keycode sym, Uint16 mod) {
     if (sym == SDLK_UP) { // drop instantly
       if (play_field.current_tetrino != NULL) {
         if (!play_field.CheckIfIntersect(play_field.current_tetrino)) {
+          // Move down until we're overlapping the edge of the play field or another piece
           do
             play_field.current_tetrino->MoveDown();
           while (!play_field.CheckIfIntersect(play_field.current_tetrino));
-      
+
+          // Move up one so we're in an empty space
           play_field.current_tetrino->MoveUp();
         }
         
+        // Drop piece into play field. If we can't play it where it's located, game over.
         if (!play_field.DropCurrentTetrino()) {
           GameOver();
         }
         else {
+          // If the Drop() call returned true, it was successful. Spawn a new piece at the top.
           play_field.SpawnTetrino();
           game_timer.ResetTimer();
         }

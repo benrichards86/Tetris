@@ -24,7 +24,6 @@ void TCell::OnLoop() {
 }
 
 void TCell::OnRender() {
-  glPushMatrix();
   glColor3ub(color.red, color.green, color.blue);
 
   glBegin(GL_QUADS);
@@ -41,7 +40,6 @@ void TCell::OnRender() {
   glVertex2i(20 * column - 30, 20 * row - 30);
   glEnd();
 #endif
-  glPopMatrix();
 }
 
 void TCell::OnCleanup() {

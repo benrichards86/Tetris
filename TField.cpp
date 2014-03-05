@@ -7,6 +7,7 @@
 #include "TField.hpp"
 #include "Tetrino.hpp"
 #include "TCell.hpp"
+#include "RGBColor.hpp"
 
 using namespace tetris;
 
@@ -14,18 +15,17 @@ TField::TField() {
   x = 145;
   y = 80;
   current_tetrino = NULL;
-  for (int r = 0; r < FIELD_HEIGHT; r++)
-    for (int c = 0; c < FIELD_WIDTH; c++)
+  width = FIELD_WIDTH;
+  height = FIELD_HEIGHT;
+  for (int r = 0; r < height; r++)
+    for (int c = 0; c < width; c++)
       field[r][c] = NULL;
-
-  srand(time(NULL));
-  next_tetrino = new Tetrino;
-  next_tetrino->OnLoad(rand() % 7);
 }
 
 TField::~TField() {
 }
 
+// Adds a piece to the field, dropped in place
 bool TField::Add(Tetrino *t) {
   if (CheckIfIntersect(t) == false) {
     for (int i = 0; i < 4; i++) {
@@ -36,7 +36,7 @@ bool TField::Add(Tetrino *t) {
 #endif
       curr->row +=  t->row;
       curr->column += t->column;
-      if (curr->row >= 0 && curr->row < FIELD_HEIGHT && curr->column >= 0 && curr->column < FIELD_WIDTH) {
+      if (curr->row >= 0 && curr->row < height && curr->column >= 0 && curr->column < width) {
         field_cells.push_back(curr);
         field[curr->row][curr->column] = curr;
 #ifdef DEBUG
@@ -63,7 +63,7 @@ bool TField::CheckIfIntersect(Tetrino *t) {
     TCell *curr = (*t)[i];
     int row = t->row + curr->row;
     int column = t->column + curr->column;
-    if (row >= 0 && row < FIELD_HEIGHT && column >= 0 && column < FIELD_WIDTH) {
+    if (row >= 0 && row < height && column >= 0 && column < width) {
       if (field[row][column] != NULL)
         return true;
     }
@@ -79,7 +79,7 @@ bool TField::CheckIfIntersect(Tetrino *t) {
 void TField::SpawnTetrino() {
   current_tetrino = next_tetrino;
   current_tetrino->row = 0;
-  current_tetrino->column = (int)(FIELD_WIDTH / 2) - 2;
+  current_tetrino->column = (int)(width / 2) - 2;
 
   next_tetrino = new Tetrino;
   next_tetrino->OnLoad(rand() % 7);
@@ -87,7 +87,7 @@ void TField::SpawnTetrino() {
   next_tetrino->column = 0;
 }
 
-// Drops a tetrino in place into the field
+// Drops a tetrino in place into the field. Returns true on success, false on fail.
 bool TField::DropCurrentTetrino() {
   if (current_tetrino == NULL)
     return false;
@@ -98,6 +98,35 @@ bool TField::DropCurrentTetrino() {
   return success;
 }
 
+void TField::OnInit() {
+  srand(time(NULL)); // Initialize random number generator using system clock
+  next_tetrino = new Tetrino; // Next piece to play
+  next_tetrino->OnLoad(rand() % 7); // Randomly choose which piece
+
+  // Delete animation 
+  clear_line_hilight = RGBColor::WHITE;
+  del_animation_complete = false;
+  clearlines_timer.timer_rate = TGameTimer::ONE_SECOND / 4;
+  clearlines_timer.loop_mode = TGameTimer::REPEATCOUNT;
+  clearlines_timer.max_repeat_count = 5;
+
+  // Timer function for line clear animation
+  auto clearlines_delay_callback = [&] {
+#ifdef DEBUG
+    std::cout << "Animating" << std::endl;
+#endif
+
+    // Even frames flash
+    enable_hilight = (clearlines_timer.RepeatCount() % 2 == 0) ? true : false;
+    
+    if (clearlines_timer.RepeatCount() == 1)
+      del_animation_complete = true;
+  };
+
+  clearlines_timer.SetCallback(clearlines_delay_callback);
+  clearlines_timer.enabled = false;
+}
+
 void TField::OnLoop() {
   for (int i = 0; i < field_cells.size(); i++)
     field_cells[i]->OnLoop();
@@ -106,52 +135,77 @@ void TField::OnLoop() {
     current_tetrino->OnLoop();
   }
 
-  // Check for full rows and delete any that are found
-  std::vector<int> deleted_rows;
-  for (int r = FIELD_HEIGHT - 1; r >= 0; r--) {
-    bool row_full = true;
-    for (int c = 0; c < FIELD_WIDTH; c++) {
-      row_full = row_full && (field[r][c] != NULL);
+  clearlines_timer.OnLoop();
+
+  if (deleted_rows.empty()) {
+    // Check for full rows and delete any that are found
+    for (int r = height - 1; r >= 0; r--) {
+      bool row_full = true;
+      for (int c = 0; c < width; c++) {
+        row_full = row_full && (field[r][c] != NULL);
+      }
+
+      // Mark full row as to delete
+      if (row_full) {
+        deleted_rows.push_back(r);
+      }
     }
-
-    // Mark full row as to delete
-    if (row_full)
-      deleted_rows.push_back(r);
-
   }
 
-  // Now, delete rows and shift blocks above deleted rows. Does it in one pass.
-  // If on row to delete, delete it.
-  // Else, shift blocks in row down by the number of rows we've deleted so far.
-  for (int del_row_num = 0; del_row_num < deleted_rows.size(); del_row_num++) {
-#ifdef DEBUG
-    std::cout << "Deleted row: " << deleted_rows[del_row_num] << std::endl;
-#endif
-    int r = deleted_rows[del_row_num];
-    while(r >= 0 && (del_row_num + 1 == deleted_rows.size() || r > deleted_rows[del_row_num + 1])) {
-#ifdef DEBUG
-      std::cout << "Shifting row: " << r << " by " << del_row_num + 1 << " rows." << std::endl;
-#endif
-      if (r == deleted_rows[del_row_num]) {
-        for (int c = 0; c < FIELD_WIDTH; c++) {
-          delete field[r][c];
-          field[r][c] = NULL;
-        }
+  // Give time to animate deleted rows before deleting them.
+  // Set timer to length of animation. Return from this method here until timer completes and don't allow a new piece to be spawned.
+  if (!deleted_rows.empty()) {
+    if (!del_animation_complete) {
+      if (!clearlines_timer.enabled) {
+        clearlines_timer.ResetTimer();
+        clearlines_timer.enabled = true;
       }
-      else {
-        for (int c = 0; c < FIELD_WIDTH; c++) {
-          if (field[r][c] != NULL) {
-            field[r][c]->row += del_row_num + 1;
-            field[r + del_row_num + 1][c] = field[r][c];
+
+      return;
+    }
+    else
+      del_animation_complete = false;
+
+    // Now, delete rows and shift blocks above deleted rows. Does it in one pass.
+    // If on row to delete, delete it.
+    // Else, shift blocks in row down by the number of rows we've deleted so far.
+    for (int del_row_num = 0; del_row_num < deleted_rows.size(); del_row_num++) {
+#ifdef DEBUG
+      std::cout << "Deleted row: " << deleted_rows[del_row_num] << std::endl;
+#endif
+      int r = deleted_rows[del_row_num];
+      while(r >= 0 && (del_row_num + 1 == deleted_rows.size() || r > deleted_rows[del_row_num + 1])) {
+#ifdef DEBUG
+        std::cout << "Shifting row: " << r << " by " << del_row_num + 1 << " rows." << std::endl;
+#endif
+        if (r == deleted_rows[del_row_num]) {
+          for (int c = 0; c < width; c++) {
+            delete field[r][c];
             field[r][c] = NULL;
           }
         }
+        else {
+          for (int c = 0; c < width; c++) {
+            if (field[r][c] != NULL) {
+              field[r][c]->row += del_row_num + 1;
+              field[r + del_row_num + 1][c] = field[r][c];
+              field[r][c] = NULL;
+            }
+          }
+        }
+        r--;
       }
-      r--;
     }
+
+    // Clear out log of deleted rows now that they're deleted
+    deleted_rows.clear();
   }
 
 }
+
+// Link in external color functions
+extern void t_glColor3ubRGB(RGBColor color);
+extern void t_glColor4ubRGB(RGBColor color, GLubyte alpha);
 
 void TField::OnRender() {
   glPushMatrix();
@@ -159,13 +213,14 @@ void TField::OnRender() {
   glColor3ub(255, 255, 255);
   glBegin(GL_LINE_LOOP);
   glVertex3i(-40, -40, 1);
-  glVertex3i(FIELD_WIDTH * 20 - 40, -40, 1);
-  glVertex3i(FIELD_WIDTH * 20 - 40, FIELD_HEIGHT * 20 - 40, 1);
-  glVertex3i(-40, FIELD_HEIGHT * 20 - 40, 1);
+  glVertex3i(width * 20 - 40, -40, 1);
+  glVertex3i(width * 20 - 40, height * 20 - 40, 1);
+  glVertex3i(-40, height * 20 - 40, 1);
   glEnd();
 
-  for (int r = 0; r < FIELD_HEIGHT; r++) {
-    for (int c = 0; c < FIELD_WIDTH; c++) {
+  // Loop through all grid positions and render cells
+  for (int r = 0; r < height; r++) {
+    for (int c = 0; c < width; c++) {
       if (field[r][c] != NULL)
         field[r][c]->OnRender();
 #ifdef DEBUG
@@ -186,7 +241,22 @@ void TField::OnRender() {
 #endif
     }
   }
-  
+
+  // Render row hilights
+  if (enable_hilight) {
+    for (int i = 0; i < deleted_rows.size(); i++) {
+      t_glColor3ubRGB(clear_line_hilight);
+      glPushMatrix();
+      glBegin(GL_QUADS);
+      glVertex3i(-40, 20 * deleted_rows[i] - 40, 0);
+      glVertex3i(width * 20 - 40, 20 * deleted_rows[i] - 40, 0);
+      glVertex3i(width * 20 - 40, 20 * deleted_rows[i] - 20, 0);
+      glVertex3i(-40, 20 * deleted_rows[i] - 20, 0);
+      glEnd();
+      glPopMatrix();
+    }
+  }
+
   if (current_tetrino != NULL)
     current_tetrino->OnRender();
 
