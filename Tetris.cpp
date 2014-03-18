@@ -33,8 +33,8 @@ Tetris::Tetris() {
   context = NULL;
 
 #if 1
-  resolution_x = 1024;
-  resolution_y = 768;
+  resolution_x = 800;
+  resolution_y = 600;
   fullscreen = false;
 #else
   resolution_x = 1920;
