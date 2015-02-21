@@ -14,6 +14,7 @@ class Tetris : public TEvent {
   bool running;
   SDL_Window* window;
   SDL_GLContext context;
+  SDL_Renderer* renderer;
   TField play_field;
 
   int resolution_x;
@@ -48,6 +49,7 @@ private:
 
  public:
   void GameOver();
+  void RenderText(std::string text, float x, float y, SDL_Color color);
 };
 
 }

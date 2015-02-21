@@ -115,6 +115,14 @@ Backup*/
 UpgradeLog*.XML
 
 
+############
+## Emacs
+############
+
+# Emacs desktop files
+.emacs.desktop
+.emacs.desktop.lock
+
 
 ############
 ## Windows

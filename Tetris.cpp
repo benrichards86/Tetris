@@ -15,7 +15,7 @@
 
 #define GET_TIMER_RATE(l)  ((50 - (l)) * 20)
 
-#define TTF_FONT "C:\\Windows\\Fonts\\BRLNSR.TTF"
+#define TTF_FONT "C:\\Windows\\Fonts\\arial.ttf"
 
 using namespace tetris;
 
@@ -26,6 +26,14 @@ void t_glColor3ubRGB(RGBColor color) {
 
 void t_glColor4ubRGB(RGBColor color, GLubyte alpha) {
   glColor4ub(color.red, color.green, color.blue, alpha);
+}
+
+SDL_Color RGB2SDLColor(RGBColor color) {
+  SDL_Color ret_color;
+  ret_color.r = color.red;
+  ret_color.g = color.green;
+  ret_color.b = color.blue;
+  return ret_color;
 }
 
 Tetris::Tetris() {
@@ -75,6 +83,8 @@ bool Tetris::SetDisplayMode(int res_x, int res_y, int bpp, bool fullscreen_mode)
   }
 
   context = SDL_GL_CreateContext(window);
+  renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+  SDL_SetRenderDrawColor(renderer, 0x0, 0x0, 0x0, 0xff);
      
   if (context == NULL) {
     std::cerr << "Error switching " << (fullscreen_mode ? "into" : "out of") << " full screen mode! Couldn't create OpenGL context!" << std::endl;
@@ -120,8 +130,8 @@ bool Tetris::OnInit() {
   play_field.OnInit();
 
   // Initialize SDL TTF libs
-  if (TTF_Init() < 0) {
-    std::cerr << "Failure in TTF_Init: " << SDL_GetError() << std::endl;
+  if (TTF_Init() == -1) {
+    std::cerr << "Failure in TTF_Init: " << TTF_GetError() << std::endl;
     return false;
   }
 
@@ -162,8 +172,13 @@ bool Tetris::OnInit() {
 
   play_field.SpawnTetrino();
 
-  font = TTF_OpenFont(TTF_FONT, 16);  
-  TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+  font = TTF_OpenFont(TTF_FONT, 12);
+  if (!font) {
+     std::cerr << "Error loading font: " << TTF_GetError() << std::endl;
+  }
+  else {
+     TTF_SetFontStyle(font, TTF_STYLE_NORMAL);
+  }
 
   return true;
 }
@@ -296,16 +311,49 @@ void Tetris::OnRender() {
   glLoadIdentity();
 
   play_field.OnRender();
-
-  //SDL_Color white = { 0xFF, 0xFF, 0xFF, 0 };
-  //TTF_RenderText_Solid(font, "Test", white);
+  RGBColor red = RGBColor::RED;
+  RenderText("testing", 0.0, 0.0, RGB2SDLColor(red));
 
   SDL_GL_SwapWindow(window);
+}
+
+void Tetris::RenderText(std::string text, float x, float y, SDL_Color color) {
+  SDL_Surface* text_surf = TTF_RenderText_Solid(font, text.c_str(), color);
+  SDL_Texture* text_tex = SDL_CreateTextureFromSurface(renderer, text_surf);
+  SDL_FreeSurface(text_surf);
+
+  glEnable(GL_TEXTURE_2D);
+
+  float width, height;
+  if (SDL_GL_BindTexture(text_tex, &width, &height) == -1)
+    return;
+
+  std::cout << "text: \"" << text << "\" x = " << x << ", y = " << y << ", width = " << width << ", height = " << height << std::endl;
+
+  glPushMatrix();
+  glLoadIdentity();
+  glTranslatef(x, y, 0);
+
+  // TODO: Look up my code regarding drawing textures in OpenGL. Gotta revisit that concept.
+  glBegin(GL_QUADS);
+  glTexCoord2f(0.0, 0.0);
+  glVertex3f(0.0, 0.0, 0.0);
+  glTexCoord2f(1.0, 0.0);
+  glVertex3f(width, 0.0, 0.0);
+  glTexCoord2f(1.0, 1.0);
+  glVertex3f(width, height, 0.0);
+  glTexCoord2f(0.0, 1.0);
+  glVertex3f(0.0, height, 0.0);
+  glEnd();
+
+  SDL_GL_UnbindTexture(text_tex);
+  glPopMatrix();
 }
 
 void Tetris::OnCleanup() {
   play_field.OnCleanup();
 
+  TTF_Quit();
   SDL_Quit();
 }
 

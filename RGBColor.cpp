@@ -1,7 +1,11 @@
 #include "RGBColor.hpp"
 
 RGBColor::RGBColor() {
-  red = green = blue = 0;
+  SetByDefaultColor(_black);
+}
+
+RGBColor::RGBColor(DefaultColors color) {
+  SetByDefaultColor(color);
 }
 
 RGBColor::~RGBColor() {
@@ -15,43 +19,48 @@ RGBColor& RGBColor::operator=(RGBColor color) {
 }
 
 RGBColor& RGBColor::operator=(DefaultColors color) {
+  SetByDefaultColor(color);
+}
+
+void RGBColor::SetByDefaultColor(DefaultColors color) {
   switch(color) {
-  case WHITE:
+  case _white:
     red = green = blue = 255;
     break;
-  case RED:
+  case _red:
     red = 255;
     green = blue = 0;
     break;
-  case ORANGE:
+  case _orange:
     red = 255;
     green = 127;
     blue = 0;
     break;
-  case YELLOW:
+  case _yellow:
     red = green = 255;
     blue = 0;
     break;
-  case GREEN:
+  case _green:
     red = blue = 0;
     green = 255;
     break;
-  case BLUE:
+  case _blue:
     red = green = 0;
     blue = 255;
     break;
-  case VIOLET:
+  case _violet:
     red = blue = 255;
     green = 0;
     break;
-  case BROWN:
+  case _brown:
     red = 255;
     green = 63;
     blue = 0;
     break;
-  case BLACK:
+  case _black:
   default:
     red = green = blue = 0;
     break;
   }
 }
+

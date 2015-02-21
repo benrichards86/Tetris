@@ -10,10 +10,16 @@ public:
   int blue;
   
   RGBColor();
+  RGBColor(DefaultColors color);
   ~RGBColor();
+
   RGBColor& operator=(RGBColor color);
   RGBColor& operator=(DefaultColors color);
 
+private:
+  void SetByDefaultColor(DefaultColors color);
+  
+public:
   static const DefaultColors WHITE = _white;
   static const DefaultColors RED = _red;
   static const DefaultColors ORANGE = _orange;
